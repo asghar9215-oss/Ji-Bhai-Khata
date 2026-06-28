@@ -22,7 +22,7 @@ jobs:
 
     - name: Initialize Android Base Project
       run: |
-        # گریڈل کو بتانے کے لیے کہ 'app' ایک ماڈیول ہے، settings.gradle بنانا ضروری ہے
+        # settings.gradle بنانا
         cat <<EOF > settings.gradle
         include ':app'
         rootProject.name = "Ji-Bhai-Khata"
@@ -37,12 +37,14 @@ jobs:
         allprojects { repositories { google(); mavenCentral() } }
         EOF
 
-        # ایپ کے فولڈرز اور فائلز تیار کرنا
+        # ایپ کے فولڈرز تیار کرنا
         mkdir -p app/src/main/assets
+        mkdir -p app/src/main/java/com/stylelink/jibhaikhata
+        
+        # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # ایک بنیادی اینڈرائیڈ مینی فیسٹ فائل بنانا جو بلڈ کے لیے لازمی ہے
-        mkdir -p app/src/main
+        # اینڈرائیڈ مینی فیسٹ فائل بنانا (اس میں MainActivity کا حوالہ دیا گیا ہے)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -60,6 +62,45 @@ jobs:
                 </activity>
             </application>
         </manifest>
+        EOF
+
+        # سب سے اہم حصہ: MainActivity.java فائل بنانا جو ایپ کو کریش ہونے سے بچائے گی اور کوڈ لوڈ کرے گی
+        cat <<EOF > app/src/main/java/com/stylelink/jibhaikhata/MainActivity.java
+        package com.stylelink.jibhaikhata;
+
+        import android.app.Activity;
+        import android.os.Bundle;
+        import android.webkit.WebSettings;
+        import android.webkit.WebView;
+        import android.webkit.WebViewClient;
+
+        public class MainActivity extends Activity {
+            private WebView myWebView;
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                
+                myWebView = new WebView(this);
+                WebSettings webSettings = myWebView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                webSettings.setDomStorageEnabled(true);
+                
+                myWebView.setWebViewClient(new WebViewClient());
+                myWebView.loadUrl("file:///android_asset/index.html");
+                
+                setContentView(myWebView);
+            }
+
+            @Override
+            public void onBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                } else {
+                    super.onBackPressed();
+                }
+            }
+        }
         EOF
 
         # ایپ کی اپنی build.gradle فائل تیار کرنا
