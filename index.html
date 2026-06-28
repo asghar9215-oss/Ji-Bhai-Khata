@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جی بھائی کھاتا</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            top: 0px !important;
+            position: static !important;
+        }
+
+        /* Language Buttons CSS */
+        .lang-selector {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .lang-btn {
+            background: #b91c1c; /* red-700 */
+            color: #fff;
+            border: 1px solid #ef4444; /* red-500 */
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #ffffff;
+            color: #b91c1c; /* red-700 */
+        }
+
+        /* Google Translate Integration Styles */
+        #google_translate_element {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
+        }
+        .skiptranslate, iframe.goog-te-banner-frame, iframe[id*="google"], #goog-gt-tt {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* Advance Clean Printing Engine */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            body > *:not(.print-show) {
+                display: none !important;
+            }
+            .print-show {
+                display: block !important;
+                width: 100% !important;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                padding: 10px !important;
+                direction: rtl !important;
+            }
+        }
+        
+        #print-area, #print-stock-area, #print-card-only, #print-single-receipt {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
+
+    <!-- 1. Registration/Onboarding Screen -->
+    <div id="onboarding-screen" class="fixed inset-0 bg-white z-50 p-6 flex flex-col justify-center items-center hidden no-print">
+        <div class="w-full max-w-sm space-y-3">
+            <div class="text-center mb-2">
+                <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
+                <p class="text-xs text-gray-500 mt-0.5 mb-2">رجسٹریشن فارم پُر کریں</p>
+                
+                <div class="lang-selector bg-gray-50 p-2 rounded border">
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
+                    <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <input type="text" id="ob-biz-name" placeholder="اپنے کاروبار کا نام لکھیں" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                <input type="text" id="ob-owner-name" placeholder="آپ کا نام (پروپرائٹر)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                <input type="text" id="ob-biz-phone" placeholder="کاروباری موبائل نمبر" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
+                <input type="email" id="ob-biz-email" placeholder="کاروباری جی میل (Gmail)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                <input type="password" id="ob-password" placeholder="ایپ لاک پاسورڈ بنائیں" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
+                <button onclick="saveOnboarding()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-red-700 transition">محفوظ کریں اور شروع کریں</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Secure Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-white z-50 p-6 flex flex-col justify-center items-center hidden no-print">
+        <div class="w-full max-w-sm space-y-3">
+            <div class="text-center mb-2">
+                <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
+                <p class="text-xs text-gray-500 mb-2">لاگ ان معلومات درج کریں</p>
+                
+                <div class="lang-selector bg-gray-50 p-2 rounded border">
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
+                    <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
+                    <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <input type="text" id="login-name" placeholder="رجسٹرڈ پروپرائٹر نام لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600">
+                <input type="text" id="login-phone" placeholder="رجسٹرڈ موبائل نمبر" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
+                <input type="password" id="login-pass" placeholder="رجسٹرڈ پاسورڈ لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
+                <button onclick="performLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition">لاگ ان کریں</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Native Google Translate Dropdown Container -->
+    <div id="google_translate_element"></div>
+
+    <!-- Top Header -->
+    <header class="bg-red-600 text-white p-2.5 sticky top-0 z-40 shadow flex flex-col no-print">
+        <div class="flex justify-between items-center">
+            <h1 class="text-base font-bold">جی بھائی کھاتا</h1>
+        </div>
+        
+        <div class="lang-selector border-t border-red-500 pt-1.5">
+            <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
+            <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
+            <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
+            <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-2.5 overflow-y-auto print-section no-print pb-20">
+        
+        <!-- Tab 1: Cash Book -->
+        <section id="cash-tab" class="tab-content">
+            <!-- Balance Card -->
+            <div class="bg-white rounded-lg p-3 shadow mb-2">
+                <p class="text-gray-500 text-xs">کل بیلنس</p>
+                <h2 class="text-2xl font-bold text-gray-800 my-0.5" id="cash-total">0 روپے</h2>
+                <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <div class="text-green-600">
+                        <span class="text-[10px] block">کیش ان</span>
+                        <strong class="text-sm" id="cash-in-total">0 روپے</strong>
+                    </div>
+                    <div class="text-red-600 border-r pr-2 border-gray-200">
+                        <span class="text-[10px] block">کیش آؤٹ</span>
+                        <strong class="text-sm" id="cash-out-total">0 روپے</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Form -->
+            <div class="bg-white rounded-lg p-3 shadow mb-2 no-print">
+                <h3 class="font-bold mb-2 text-xs text-gray-700">نئی انٹری کریں</h3>
+                <div class="space-y-1.5">
+                    <input type="number" id="cash-amount" placeholder="رقم لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="text" id="cash-details" placeholder="تفصیل لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
+                    <input type="text" id="cash-phone" placeholder="موبائل نمبر لکھیں (اختیاری)" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button onclick="addCashTransaction('in')" class="bg-green-600 text-white py-1.5 rounded text-xs font-bold hover:bg-green-700">کیش ان (+)</button>
+                        <button onclick="addCashTransaction('out')" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">کیش آؤٹ (-)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="bg-white rounded-lg p-2 shadow mb-2 no-print">
+                <div class="relative">
+                    <input type="text" id="search-input" oninput="filterTransactions()" placeholder="تاریخ یا موبائل نمبر سے تلاش کریں..." class="w-full border p-1.5 pr-8 rounded focus:outline-red-600 text-xs">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2 top-2.5 text-gray-400 text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="bg-white rounded-lg p-3 shadow">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-xs text-gray-700">حالیہ لین دین</h3>
+                </div>
+                <div id="cash-list" class="space-y-1.5 divide-y divide-gray-100"></div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Udhar Book -->
+        <section id="udhar-tab" class="tab-content hidden">
+            <!-- Add Customer -->
+            <div class="bg-white rounded-lg p-3 shadow mb-2 no-print">
+                <h3 class="font-bold mb-2 text-xs text-gray-700">نیا گاہک شامل کریں</h3>
+                <div class="space-y-1.5">
+                    <input type="text" id="cust-name" placeholder="گاہک کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
+                    <input type="text" id="cust-phone" placeholder="موبائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <button onclick="addCustomer()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">محفوظ کریں</button>
+                </div>
+            </div>
+
+            <!-- Udhar Search Bar -->
+            <div class="bg-white rounded-lg p-2 shadow mb-2 no-print">
+                <div class="relative">
+                    <input type="text" id="search-customer" oninput="filterCustomers()" placeholder="نام یا موبائل نمبر سے گاہک تلاش کریں..." class="w-full border p-1.5 pr-8 rounded focus:outline-red-600 text-xs">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2 top-2.5 text-gray-400 text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Customers List -->
+            <div class="bg-white rounded-lg p-3 shadow">
+                <h3 class="font-bold text-xs text-gray-700 mb-2">گاہکوں کی لسٹ</h3>
+                <div id="customers-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Stock Book -->
+        <section id="stock-tab" class="tab-content hidden">
+            <!-- Add Item -->
+            <div class="bg-white rounded-lg p-3 shadow mb-2 no-print">
+                <h3 class="font-bold mb-2 text-xs text-gray-700">نیا اسٹاک آئٹم شامل کریں</h3>
+                <div class="space-y-1.5">
+                    <input type="text" id="item-name" placeholder="آئٹم کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <input type="number" id="item-qty" placeholder="اسٹاک (تعداد)" class="border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                        <input type="number" id="item-price" placeholder="قیمت فی پروڈکٹ" class="border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    </div>
+                    <button onclick="addStockItem()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">آئٹم محفوظ کریں</button>
+                </div>
+            </div>
+
+            <!-- Stock Search Bar -->
+            <div class="bg-white rounded-lg p-2 shadow mb-2 no-print">
+                <div class="relative">
+                    <input type="text" id="search-stock" oninput="filterStock()" placeholder="نام سے پروڈکٹ تلاش کریں..." class="w-full border p-1.5 pr-8 rounded focus:outline-red-600 text-xs">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2 top-2.5 text-gray-400 text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Stock List -->
+            <div class="bg-white rounded-lg p-3 shadow">
+                <h3 class="font-bold text-xs text-gray-700 mb-2">اسٹاک کی لسٹ</h3>
+                <div id="stock-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Tools -->
+        <section id="tools-tab" class="tab-content hidden no-print">
+            <!-- Calculator Card -->
+            <div class="bg-white rounded-lg p-3 shadow mb-3">
+                <h3 class="font-bold mb-2 text-xs text-gray-700">کیلکولیٹر</h3>
+                <input type="text" id="calc-screen" readonly class="w-full text-right text-base border p-1 rounded mb-1.5 bg-gray-50">
+                <div class="grid grid-cols-4 gap-1.5 text-sm">
+                    <button onclick="pressCalc('7')" class="bg-gray-200 p-2 rounded font-bold">7</button>
+                    <button onclick="pressCalc('8')" class="bg-gray-200 p-2 rounded font-bold">8</button>
+                    <button onclick="pressCalc('9')" class="bg-gray-200 p-2 rounded font-bold">9</button>
+                    <button onclick="pressCalc('/')" class="bg-red-100 text-red-800 p-2 rounded font-bold">/</button>
+
+                    <button onclick="pressCalc('4')" class="bg-gray-200 p-2 rounded font-bold">4</button>
+                    <button onclick="pressCalc('5')" class="bg-gray-200 p-2 rounded font-bold">5</button>
+                    <button onclick="pressCalc('6')" class="bg-gray-200 p-2 rounded font-bold">6</button>
+                    <button onclick="pressCalc('*')" class="bg-red-100 text-red-800 p-2 rounded font-bold">*</button>
+
+                    <button onclick="pressCalc('1')" class="bg-gray-200 p-2 rounded font-bold">1</button>
+                    <button onclick="pressCalc('2')" class="bg-gray-200 p-2 rounded font-bold">2</button>
+                    <button onclick="pressCalc('3')" class="bg-gray-200 p-2 rounded font-bold">3</button>
+                    <button onclick="pressCalc('-')" class="bg-red-100 text-red-800 p-2 rounded font-bold">-</button>
+
+                    <button onclick="clearCalc()" class="bg-red-100 text-red-700 p-2 rounded font-bold">C</button>
+                    <button onclick="pressCalc('0')" class="bg-gray-200 p-2 rounded font-bold">0</button>
+                    <button onclick="solveCalc()" class="bg-red-600 text-white p-2 rounded font-bold">=</button>
+                    <button onclick="pressCalc('+')" class="bg-red-100 text-red-800 p-2 rounded font-bold">+</button>
+                </div>
+            </div>
+
+            <!-- Sub Navigation Buttons -->
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="openProfileModal()" class="bg-red-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-red-700 transition">
+                    <i class="fa-solid fa-user-gear text-lg"></i>
+                    <span>کاروباری معلومات</span>
+                </button>
+                <button onclick="openCardModal()" class="bg-indigo-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-700 transition">
+                    <i class="fa-solid fa-address-card text-lg"></i>
+                    <span>بزنس کارڈ</span>
+                </button>
+                <button onclick="logoutUser()" class="bg-gray-800 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-gray-900 transition">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                    <span>لاگ آؤٹ کریں</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Detailed Customer Ledger Page -->
+    <div id="ledger-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="closeLedgerPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
+            </button>
+            <h2 class="text-sm font-bold">گاہک کھاتا تفصیل</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-3 overflow-y-auto space-y-3">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
+                <div>
+                    <h3 id="led-cust-name" class="text-base font-bold text-gray-800">نام</h3>
+                    <p id="led-cust-phone" class="text-xs text-gray-500">نمبر</p>
+                </div>
+                <div class="text-right">
+                    <span id="led-cust-balance" class="text-base font-bold block">0 روپے</span>
+                    <span id="led-cust-status" class="text-[10px] text-gray-400 block">بقیہ حساب</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border shadow-sm space-y-2 action-area">
+                <h4 class="font-bold text-xs text-gray-700 border-b pb-1">نیا حساب درج کریں</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="led-amount" placeholder="رقم" class="border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="text" id="led-details" placeholder="تفصیل" class="border p-1.5 text-xs rounded focus:outline-red-600">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="saveLedgerEntry('give')" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">ادھار دیا (-)</button>
+                    <button onclick="saveLedgerEntry('receive')" class="bg-green-600 text-white py-1.5 rounded text-xs font-bold hover:bg-green-700">رقم وصول کی (+)</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border shadow-sm">
+                <h4 class="font-bold text-xs text-gray-700 mb-2">حساب کتاب لسٹ</h4>
+                <div id="ledger-list" class="space-y-3 divide-y divide-gray-100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Stock Item Page -->
+    <div id="stock-detail-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="closeStockDetailPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
+            </button>
+            <h2 class="text-sm font-bold">پروڈکٹ اسٹاک ہسٹری</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-3 overflow-y-auto space-y-3">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
+                <div>
+                    <h3 id="st-item-name" class="text-base font-bold text-gray-800">آئٹم کا نام</h3>
+                    <p id="st-item-price" class="text-xs text-gray-500">قیمت</p>
+                </div>
+                <div class="text-right">
+                    <span id="st-item-qty" class="text-base font-bold text-green-600 block">0</span>
+                    <span class="text-[10px] text-gray-400 block">موجودہ اسٹاک</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border shadow-sm space-y-2 action-area">
+                <h4 class="font-bold text-xs text-gray-700 border-b pb-1">نیا اسٹاک اپڈیٹ کریں</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="st-led-qty" placeholder="تعداد" class="border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="text" id="st-led-details" placeholder="وجہ / تفصیل" class="border p-1.5 text-xs rounded focus:outline-red-600">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="saveStockLedgerEntry('in')" class="bg-green-600 text-white py-1.5 rounded text-xs font-bold hover:bg-green-700">اسٹاک ان (+)</button>
+                    <button onclick="saveStockLedgerEntry('out')" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">اسٹاک آؤٹ (-)</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 border shadow-sm">
+                <h4 class="font-bold text-xs text-gray-700 mb-2">اسٹاک ٹرانزیکشنز لسٹ</h4>
+                <div id="stock-ledger-list" class="space-y-3 divide-y divide-gray-100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Business Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3">
+            <button onclick="closeProfileModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-xs text-gray-700 border-b pb-2"><i class="fa-solid fa-shop"></i> معلومات تبدیل کریں</h3>
+            <div class="space-y-2">
+                <input type="text" id="edit-biz-name" placeholder="کاروبار کا نام" class="w-full border p-2 rounded text-xs focus:outline-red-600">
+                <input type="text" id="edit-owner-name" placeholder="پروپرائٹر کا نام" class="w-full border p-2 rounded text-xs focus:outline-red-600">
+                <input type="text" id="edit-biz-phone" placeholder="موبائل نمبر" class="w-full border p-2 rounded text-xs focus:outline-red-600 text-right">
+                <input type="email" id="edit-biz-email" placeholder="ای میل / جی میل" class="w-full border p-2 rounded text-xs focus:outline-red-600">
+                <input type="password" id="edit-password" placeholder="نیا ایپ لاک پاسورڈ" class="w-full border p-2 rounded text-xs focus:outline-red-600 text-right">
+                <button onclick="saveProfileEdit()" class="w-full bg-red-600 text-white py-2 rounded font-bold text-xs hover:bg-red-700 transition">معلومات اپڈیٹ کریں</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Card Maker Modal Popup -->
+    <div id="card-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3 overflow-y-auto max-h-[90vh]">
+            <button onclick="closeCardModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-sm text-gray-700 border-b pb-1"><i class="fa-solid fa-address-card"></i> بزنس کارڈ میکر</h3>
+            
+            <div class="space-y-1.5">
+                <input type="text" id="biz-card-name-input" placeholder="کاروبار کا نام" oninput="updateCard()" class="w-full border p-1.5 text-xs rounded">
+                <input type="text" id="biz-card-phone-input" placeholder="رابطہ نمبر" oninput="updateCard()" class="w-full border p-1.5 text-xs rounded text-right">
+                <input type="text" id="biz-card-addr-input" placeholder="کاروبار کا پتہ" oninput="updateCard()" class="w-full border p-1.5 text-xs rounded">
+            </div>
+
+            <div class="space-y-1">
+                <p class="text-[10px] font-bold text-gray-500">کارڈ ڈیزائن منتخب کریں (6 اقسام):</p>
+                <div class="grid grid-cols-6 gap-1 text-center font-bold">
+                    <button onclick="changeCardTemplate(1)" class="bg-red-600 text-white p-1 rounded text-xs">1</button>
+                    <button onclick="changeCardTemplate(2)" class="bg-indigo-800 text-white p-1 rounded text-xs">2</button>
+                    <button onclick="changeCardTemplate(3)" class="bg-emerald-800 text-white p-1 rounded text-xs">3</button>
+                    <button onclick="changeCardTemplate(4)" class="bg-gray-100 text-gray-900 border p-1 rounded text-xs">4</button>
+                    <button onclick="changeCardTemplate(5)" class="bg-slate-950 text-white p-1 rounded text-xs">5</button>
+                    <button onclick="changeCardTemplate(6)" class="bg-yellow-500 text-black p-1 rounded text-xs">6</button>
+                </div>
+            </div>
+
+            <!-- Card Live Preview -->
+            <div id="biz-card-preview" class="bg-gradient-to-r from-red-700 to-red-900 text-white p-3.5 rounded-lg shadow relative overflow-hidden h-28 flex flex-col justify-between">
+                <div class="z-10 relative">
+                    <h4 class="text-base font-bold" id="card-preview-name">شاہ جی جنرل اسٹور</h4>
+                    <p class="text-[10px] opacity-80 mt-1" id="card-preview-phone"><i class="fa-solid fa-phone"></i> 03001234567</p>
+                    <p class="text-[10px] opacity-80" id="card-preview-address"><i class="fa-solid fa-location-dot"></i> مین بازار، لاہور</p>
+                </div>
+                <div id="card-decorator" class="absolute -right-6 -bottom-6 w-16 h-16 bg-white opacity-10 rounded-full"></div>
+            </div>
+
+            <button onclick="printBusinessCard()" class="w-full bg-indigo-600 text-white py-1.5 rounded font-bold text-xs hover:bg-indigo-700 transition"><i class="fa-solid fa-print"></i> بزنس کارڈ پرنٹ / پی ڈی ایف</button>
+        </div>
+    </div>
+
+    <!-- Printable container strictly for Business Card printing only -->
+    <div id="print-card-only" class="p-4 flex justify-center items-center h-screen bg-white">
+        <div id="print-card-target" class="w-80 h-44 p-4 rounded-xl shadow-lg border relative overflow-hidden flex flex-col justify-between"></div>
+    </div>
+
+    <!-- Beautiful Optimized Ledger Printing Container (Total Entries Report) -->
+    <div id="print-area" class="p-6 bg-white text-black leading-relaxed">
+        <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
+            <h1 id="p-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
+            <p class="text-sm text-gray-600 mt-1 font-semibold">بزنس لیجر اسٹیٹمنٹ رپورٹ</p>
+            
+            <!-- Labels Top, Values Bottom format -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
+                    <span id="p-owner-name" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">رابطہ نمبر</span>
+                    <span id="p-biz-phone" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">جی میل</span>
+                    <span id="p-biz-email" class="font-semibold text-gray-800 text-sm break-all"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center">
+            <div>
+                <p class="mb-1"><strong>بنام گاہک:</strong> <span id="p-cust-name" class="font-bold text-base text-gray-800"></span></p>
+                <p><strong>رابطہ نمبر:</strong> <span id="p-cust-phone" class="font-semibold text-gray-700"></span></p>
+            </div>
+            <div class="text-left bg-white p-2 rounded border border-gray-100 shadow-sm">
+                <p class="text-xs text-gray-500">مجموعی بقایا حساب</p>
+                <span id="p-cust-bal" class="font-bold text-lg text-red-600"></span>
+            </div>
+        </div>
+
+        <table class="w-full text-right border-collapse text-xs">
+            <thead>
+                <tr class="bg-red-50 text-red-900 border-b border-gray-300">
+                    <th class="p-2 border-b-2 border-gray-300 text-right">تاریخ و وقت</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-right">تفصیل</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-right">حیثیت</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-left">رقم</th>
+                </tr>
+            </thead>
+            <tbody id="p-table-body" class="divide-y divide-gray-200"></tbody>
+        </table>
+
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط گاہک</p>
+            </div>
+            <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط پروپرائٹر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Single Entry Receipt Printing Container (One Entry Receipt Voucher) -->
+    <div id="print-single-receipt" class="p-6 bg-white text-black leading-relaxed">
+        <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
+            <h1 id="psr-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
+            <p class="text-sm text-gray-600 mt-1 font-semibold">ٹرانزیکشن رسید (ووچر)</p>
+            
+            <!-- Metadata columns formatted: Label Top, Value Bottom -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
+                    <span id="psr-owner-name" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">رابطہ نمبر</span>
+                    <span id="psr-biz-phone" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">جی میل</span>
+                    <span id="psr-biz-email" class="font-semibold text-gray-800 text-sm break-all"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Summary -->
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
+            <p class="mb-1"><strong>نام گاہک / تفصیل:</strong> <span id="psr-cust-name" class="font-bold text-gray-800 text-base"></span></p>
+            <p><strong>رابطہ نمبر:</strong> <span id="psr-cust-phone" class="font-semibold text-gray-700"></span></p>
+        </div>
+
+        <!-- Single Entry Details Block -->
+        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
+            <div class="bg-gray-100 p-2.5 font-bold text-gray-700 border-b border-gray-300 grid grid-cols-3">
+                <div>تاریخ اور وقت</div>
+                <div>تفصیل</div>
+                <div>حیثیت</div>
+            </div>
+            <div class="p-3 grid grid-cols-3 items-center">
+                <div id="psr-date" class="text-gray-600"></div>
+                <div id="psr-details" class="font-semibold text-gray-800"></div>
+                <div id="psr-type"></div>
+            </div>
+            <div class="bg-red-50 p-3 border-t border-gray-300 flex justify-between items-center text-sm font-bold">
+                <span class="text-red-900">کل رقم:</span>
+                <span id="psr-amount" class="text-lg text-red-600"></span>
+            </div>
+        </div>
+
+        <!-- Signature/Footer -->
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط گاہک</p>
+            </div>
+            <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط پروپرائٹر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beautiful Optimized Stock Printing Container -->
+    <div id="print-stock-area" class="p-6 bg-white text-black leading-relaxed">
+        <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
+            <h1 id="ps-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
+            <p class="text-sm text-gray-600 mt-1 font-semibold">پروڈکٹ اسٹاک ہسٹری رپورٹ</p>
+            
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
+                    <span id="ps-owner-name" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">رابطہ نمبر</span>
+                    <span id="ps-biz-phone" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">رپورٹ تاریخ</span>
+                    <span id="ps-report-date" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center">
+            <div>
+                <p class="mb-1"><strong>پروڈکٹ کا نام:</strong> <span id="ps-item-name" class="font-bold text-base text-gray-800"></span></p>
+                <p><strong>قیمت فی آئٹم:</strong> <span id="ps-item-price" class="font-semibold text-gray-700"></span></p>
+            </div>
+            <div class="text-left bg-white p-2 rounded border border-gray-100 shadow-sm">
+                <p class="text-xs text-gray-500">کل دستیاب اسٹاک</p>
+                <span id="ps-item-qty" class="font-bold text-lg text-green-600"></span>
+            </div>
+        </div>
+
+        <table class="w-full text-right border-collapse text-xs">
+            <thead>
+                <tr class="bg-green-50 text-green-900 border-b border-gray-300">
+                    <th class="p-2 border-b-2 border-gray-300 text-right">تاریخ و وقت</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-right">تفصیل/وجہ</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-right">حیثیت</th>
+                    <th class="p-2 border-b-2 border-gray-300 text-left">مقدار</th>
+                </tr>
+            </thead>
+            <tbody id="ps-table-body" class="divide-y divide-gray-200"></tbody>
+        </table>
+
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+            <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط انچارج اسٹاک</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 max-w-md mx-auto grid grid-cols-4 text-center py-1.5 shadow-lg z-40 no-print">
+        <button onclick="switchTab('cash')" class="text-red-600 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-cash">
+            <i class="fa-solid fa-wallet text-base"></i>
+            <span class="text-[10px] font-semibold">کیش بک</span>
+        </button>
+        <button onclick="switchTab('udhar')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-udhar">
+            <i class="fa-solid fa-book-open text-base"></i>
+            <span class="text-[10px] font-semibold">ادھار بک</span>
+        </button>
+        <button onclick="switchTab('stock')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-stock">
+            <i class="fa-solid fa-boxes-stacked text-base"></i>
+            <span class="text-[10px] font-semibold">اسٹاک</span>
+        </button>
+        <button onclick="switchTab('tools')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-tools">
+            <i class="fa-solid fa-ellipsis-h text-base"></i>
+            <span class="text-[10px] font-semibold">مزید</span>
+        </button>
+    </nav>
+
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            try {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'ur',
+                    includedLanguages: 'en,ur,hi,ar',
+                    autoDisplay: false
+                }, 'google_translate_element');
+            } catch(e) {
+                console.error("Translate init error:", e);
+            }
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- StyleLink Style Programmatic Translation Trigger -->
+    <script>
+        window.triggerGoogleTranslate = function(langCode) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.lang-btn').forEach(b => {
+                if(b.getAttribute('onclick').includes(langCode)) {
+                    b.classList.add('active');
+                }
+            });
+
+            const selectEl = document.querySelector('select.goog-te-combo');
+            if (selectEl) {
+                selectEl.value = langCode;
+                selectEl.dispatchEvent(new Event('change'));
+            } else {
+                setTimeout(() => {
+                    const retrySelect = document.querySelector('select.goog-te-combo');
+                    if (retrySelect) {
+                        retrySelect.value = langCode;
+                        retrySelect.dispatchEvent(new Event('change'));
+                    }
+                }, 800);
+            }
+        };
+    </script>
+
+    <!-- App Logic Scripts -->
+    <script>
+        // Firebase Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyChNNUeF8qorghlUT_qS-oWrtMxKJ0avzU",
+            authDomain: "electric-e5e6d.firebaseapp.com",
+            databaseURL: "https://electric-e5e6d-default-rtdb.firebaseio.com",
+            projectId: "electric-e5e6d",
+            storageBucket: "electric-e5e6d.firebasestorage.app",
+            messagingSenderId: "830917277147",
+            appId: "1:830917277147:web:b95282dca3b031eb02a3fe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let allTransactions = [];
+        let allCustomers = [];
+        let allStockItems = [];
+
+        let selectedCustomerKey = null;
+        let selectedStockItemKey = null;
+        let currentCardTemplate = 1;
+
+        window.onload = function() {
+            try {
+                checkUserOnboarding();
+                updateCard();
+                initializeFirebaseListeners();
+            } catch(e) {
+                console.error("Initialization error:", e);
+            }
+        };
+
+        function checkUserOnboarding() {
+            const savedBiz = localStorage.getItem('gb_bizName');
+            const isLoggedIn = localStorage.getItem('gb_isLoggedIn');
+
+            if (!savedBiz) {
+                document.getElementById('onboarding-screen').classList.remove('hidden');
+            } else if (savedBiz && isLoggedIn !== 'true') {
+                document.getElementById('login-screen').classList.remove('hidden');
+            } else {
+                loadProfileToInputs();
+            }
+        }
+
+        function saveOnboarding() {
+            const biz = document.getElementById('ob-biz-name').value.trim();
+            const owner = document.getElementById('ob-owner-name').value.trim();
+            const phone = document.getElementById('ob-biz-phone').value.trim();
+            const email = document.getElementById('ob-biz-email').value.trim();
+            const pass = document.getElementById('ob-password').value.trim();
+
+            if (!biz || !owner || !phone || !email || !pass) {
+                return alert("تمام خانے پُر کریں اور پاسورڈ بنائیں!");
+            }
+
+            localStorage.setItem('gb_bizName', biz);
+            localStorage.setItem('gb_ownerName', owner);
+            localStorage.setItem('gb_bizPhone', phone);
+            localStorage.setItem('gb_bizEmail', email);
+            localStorage.setItem('gb_password', pass);
+            localStorage.setItem('gb_isLoggedIn', 'true');
+
+            document.getElementById('onboarding-screen').classList.add('hidden');
+            loadProfileToInputs();
+            updateCard();
+        }
+
+        function performLogin() {
+            const enteredName = document.getElementById('login-name').value.trim();
+            const enteredPhone = document.getElementById('login-phone').value.trim();
+            const enteredPass = document.getElementById('login-pass').value.trim();
+
+            const savedName = localStorage.getItem('gb_ownerName');
+            const savedPhone = localStorage.getItem('gb_bizPhone');
+            const savedPass = localStorage.getItem('gb_password');
+
+            if (enteredName === savedName && enteredPhone === savedPhone && enteredPass === savedPass) {
+                localStorage.setItem('gb_isLoggedIn', 'true');
+                document.getElementById('login-screen').classList.add('hidden');
+                loadProfileToInputs();
+            } else {
+                alert("نام، موبائل نمبر یا پاسورڈ درست نہیں ہے! دوبارہ کوشش کریں۔");
+                document.getElementById('login-pass').value = '';
+            }
+        }
+
+        function logoutUser() {
+            if (confirm("کیا آپ واقعی لاگ آؤٹ کرنا چاہتے ہیں؟")) {
+                localStorage.setItem('gb_isLoggedIn', 'false');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('login-name').value = '';
+                document.getElementById('login-phone').value = '';
+                document.getElementById('login-pass').value = '';
+            }
+        }
+
+        function loadProfileToInputs() {
+            document.getElementById('edit-biz-name').value = localStorage.getItem('gb_bizName') || '';
+            document.getElementById('edit-owner-name').value = localStorage.getItem('gb_ownerName') || '';
+            document.getElementById('edit-biz-phone').value = localStorage.getItem('gb_bizPhone') || '';
+            document.getElementById('edit-biz-email').value = localStorage.getItem('gb_bizEmail') || '';
+            document.getElementById('edit-password').value = localStorage.getItem('gb_password') || '';
+        }
+
+        function saveProfileEdit() {
+            const biz = document.getElementById('edit-biz-name').value.trim();
+            const owner = document.getElementById('edit-owner-name').value.trim();
+            const phone = document.getElementById('edit-biz-phone').value.trim();
+            const email = document.getElementById('edit-biz-email').value.trim();
+            const pass = document.getElementById('edit-password').value.trim();
+
+            if (!biz || !owner || !phone || !email || !pass) {
+                return alert("تمام خانے پُر کریں!");
+            }
+
+            localStorage.setItem('gb_bizName', biz);
+            localStorage.setItem('gb_ownerName', owner);
+            localStorage.setItem('gb_bizPhone', phone);
+            localStorage.setItem('gb_bizEmail', email);
+            localStorage.setItem('gb_password', pass);
+
+            alert("معلومات کامیابی سے تبدیل ہو گئی ہیں!");
+            closeProfileModal();
+            updateCard();
+        }
+
+        function switchTab(tabId) {
+            try {
+                closeLedgerPage();
+                closeStockDetailPage();
+                closeProfileModal();
+                closeCardModal();
+
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+                const targetTab = document.getElementById(tabId + '-tab');
+                if (targetTab) targetTab.classList.remove('hidden');
+
+                const navButtons = ['cash', 'udhar', 'stock', 'tools'];
+                navButtons.forEach(btn => {
+                    const element = document.getElementById('nav-' + btn);
+                    if (element) {
+                        if (btn === tabId) {
+                            element.classList.remove('text-gray-400');
+                            element.classList.add('text-red-600');
+                        } else {
+                            element.classList.remove('text-red-600');
+                            element.classList.add('text-gray-400');
+                        }
+                    }
+                });
+            } catch(e) {
+                console.error("Tab switch error: ", e);
+            }
+        }
+
+        function openProfileModal() {
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+        function openCardModal() {
+            document.getElementById('card-modal').classList.remove('hidden');
+        }
+        function closeCardModal() {
+            document.getElementById('card-modal').classList.add('hidden');
+        }
+
+        const cardStyles = {
+            1: "bg-gradient-to-r from-red-700 to-red-950 text-white border-none shadow-xl", 
+            2: "bg-gradient-to-br from-indigo-800 via-purple-900 to-slate-900 text-white border-none shadow-xl", 
+            3: "bg-gradient-to-r from-emerald-800 to-teal-900 text-white border-none shadow-xl", 
+            4: "bg-white border-2 border-slate-900 text-slate-900 shadow", 
+            5: "bg-slate-950 text-slate-100 border-none font-mono shadow-xl", 
+            6: "bg-gradient-to-tr from-yellow-500 via-amber-500 to-yellow-600 text-slate-950 border-none font-bold shadow-xl" 
+        };
+
+        function changeCardTemplate(templateNum) {
+            currentCardTemplate = templateNum;
+            const cardPreview = document.getElementById('biz-card-preview');
+            const dec = document.getElementById('card-decorator');
+
+            cardPreview.className = `${cardStyles[templateNum]} p-3.5 rounded-lg shadow relative overflow-hidden h-28 flex flex-col justify-between`;
+
+            if(templateNum === 4) {
+                dec.className = "absolute -right-6 -bottom-6 w-16 h-16 bg-slate-900 opacity-5 rounded-full";
+            } else if(templateNum === 6) {
+                dec.className = "absolute -right-6 -bottom-6 w-16 h-16 bg-black opacity-10 rounded-full";
+            } else {
+                dec.className = "absolute -right-6 -bottom-6 w-16 h-16 bg-white opacity-10 rounded-full";
+            }
+        }
+
+        function updateCard() {
+            const name = document.getElementById('biz-card-name-input').value || localStorage.getItem('gb_bizName') || "شاہ جی جنرل اسٹور";
+            const phone = document.getElementById('biz-card-phone-input').value || localStorage.getItem('gb_bizPhone') || "03001234567";
+            const addr = document.getElementById('biz-card-addr-input').value || "مین بازار، لاہور";
+
+            document.getElementById('card-preview-name').textContent = name;
+            document.getElementById('card-preview-phone').innerHTML = `<i class="fa-solid fa-phone"></i> ${phone}`;
+            document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
+        }
+
+        function printBusinessCard() {
+            const printTarget = document.getElementById('print-card-target');
+            const previewCard = document.getElementById('biz-card-preview');
+            
+            printTarget.innerHTML = previewCard.innerHTML;
+            printTarget.className = `${cardStyles[currentCardTemplate]} w-80 h-44 p-4 rounded-xl shadow-lg border relative overflow-hidden flex flex-col justify-between text-base`;
+            
+            document.getElementById('print-area').classList.remove('print-show');
+            document.getElementById('print-stock-area').classList.remove('print-show');
+            document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-card-only').classList.add('print-show');
+
+            window.print();
+        }
+
+        function initializeFirebaseListeners() {
+            db.ref('cashbook').on('value', snapshot => {
+                allTransactions = [];
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    val.key = child.key;
+                    allTransactions.push(val);
+                });
+                renderTransactions(allTransactions);
+            });
+
+            db.ref('customers').on('value', snapshot => {
+                allCustomers = [];
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    val.key = child.key;
+                    allCustomers.push(val);
+                });
+                renderCustomers(allCustomers);
+            });
+
+            db.ref('stock').on('value', snapshot => {
+                allStockItems = [];
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    val.key = child.key;
+                    allStockItems.push(val);
+                });
+                renderStock(allStockItems);
+            });
+        }
+
+        function addCashTransaction(type) {
+            const amount = parseFloat(document.getElementById('cash-amount').value);
+            const details = document.getElementById('cash-details').value;
+            const phone = document.getElementById('cash-phone').value || "کوئی نمبر نہیں";
+
+            if (!amount || amount <= 0) return alert("درست رقم درج کریں!");
+
+            const transaction = {
+                amount: amount,
+                details: details || "بغیر نام",
+                phone: phone,
+                type: type,
+                timestamp: Date.now()
+            };
+
+            db.ref('cashbook').push(transaction).then(() => {
+                document.getElementById('cash-amount').value = '';
+                document.getElementById('cash-details').value = '';
+                document.getElementById('cash-phone').value = '';
+            });
+        }
+
+        function deleteCashTransaction(key, event) {
+            event.stopPropagation();
+            if (confirm("کیا آپ واقعی یہ کیش انٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                db.ref(`cashbook/${key}`).remove();
+            }
+        }
+
+        function openReceipt(key) {
+            const tx = allTransactions.find(t => t.key === key);
+            if (!tx) return;
+            generateSingleEntryReceipt(null, tx.details, tx.amount, tx.type === 'in' ? 'receive' : 'give', tx.timestamp);
+        }
+
+        function renderTransactions(data) {
+            const list = document.getElementById('cash-list');
+            if(!list) return;
+            list.innerHTML = '';
+            let totalIn = 0;
+            let totalOut = 0;
+
+            data.forEach(val => {
+                if (val.type === 'in') totalIn += val.amount;
+                if (val.type === 'out') totalOut += val.amount;
+
+                const label = val.type === 'in' ? 'کیش ان' : 'کیش آؤٹ';
+                const color = val.type === 'in' ? 'text-green-600' : 'text-red-600';
+
+                list.innerHTML += `
+                    <div onclick="openReceipt('${val.key}')" class="flex justify-between items-center py-2 px-2 rounded hover:bg-gray-50 transition border-b border-gray-100 cursor-pointer">
+                        <div class="flex items-center gap-3 text-xs">
+                            <button onclick="deleteCashTransaction('${val.key}', event)" class="text-red-500 hover:text-red-700 p-1 no-print">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <div>
+                                <p class="font-bold text-gray-800">${val.details}</p>
+                                <span class="text-[10px] text-gray-500 block">نمبر: ${val.phone}</span>
+                                <span class="text-[9px] text-gray-400">${new Date(val.timestamp).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs">
+                            <span class="${color} font-bold block">${val.type === 'in' ? '+' : '-'} ${val.amount} روپے</span>
+                            <span class="text-[10px] text-gray-400">${label}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('cash-in-total').textContent = `${totalIn} روپے`;
+            document.getElementById('cash-out-total').textContent = `${totalOut} روپے`;
+            document.getElementById('cash-total').textContent = `${totalIn - totalOut} روپے`;
+        }
+
+        function filterTransactions() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = allTransactions.filter(item => {
+                const dateStr = new Date(item.timestamp).toLocaleDateString().toLowerCase();
+                const phoneStr = item.phone.toLowerCase();
+                const detailsStr = item.details.toLowerCase();
+                return dateStr.includes(query) || phoneStr.includes(query) || detailsStr.includes(query);
+            });
+            renderTransactions(filtered);
+        }
+
+        function addCustomer() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+
+            if (!name) return alert("نام لکھیں!");
+
+            const customer = {
+                name: name,
+                phone: phone || "کوئی نمبر نہیں",
+                balance: 0,
+                timestamp: Date.now()
+            };
+
+            db.ref('customers').push(customer).then(() => {
+                document.getElementById('cust-name').value = '';
+                document.getElementById('cust-phone').value = '';
+            });
+        }
+
+        function deleteCustomer(key, event) {
+            event.stopPropagation();
+            if (confirm("کیا آپ اس گاہک کا پورا کھاتا اور تمام ہسٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                db.ref(`customers/${key}`).remove();
+                db.ref(`ledgers/${key}`).remove();
+                closeLedgerPage();
+            }
+        }
+
+        function renderCustomers(data) {
+            const list = document.getElementById('customers-list');
+            if(!list) return;
+            list.innerHTML = '';
+
+            data.forEach(val => {
+                const dObj = new Date(val.timestamp || Date.now());
+                const balColor = val.balance >= 0 ? 'text-green-600' : 'text-red-600';
+                const statusText = val.balance >= 0 ? 'ملیں گے' : 'دینے ہیں';
+
+                list.innerHTML += `
+                    <div onclick="openLedgerPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1.5 cursor-pointer hover:bg-gray-50 transition relative">
+                        <div class="flex justify-between items-start text-xs">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
+                                <p class="text-[10px] text-gray-500">${val.phone}</p>
+                                <p class="text-[9px] text-gray-400 mt-0.5">
+                                    شامل کیا: ${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span class="${balColor} font-bold block text-sm">${Math.abs(val.balance)} روپے</span>
+                                <span class="text-[9px] text-gray-400 block">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-1.5 pt-1.5 border-t border-gray-100 no-print">
+                            <button onclick="deleteCustomer('${val.key}', event)" class="bg-red-50 text-red-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-red-200">
+                                <i class="fa-solid fa-trash-can"></i>  ڈیلیٹ کریں
+                            </button>
+                            <button onclick="generateCustomerReport('${val.key}', event)" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-blue-200">
+                                <i class="fa-solid fa-file-pdf"></i> رپورٹ پی ڈی ایف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterCustomers() {
+            const query = document.getElementById('search-customer').value.toLowerCase().trim();
+            const filtered = allCustomers.filter(item => {
+                return item.name.toLowerCase().includes(query) || item.phone.toLowerCase().includes(query);
+            });
+            renderCustomers(filtered);
+        }
+
+        function openLedgerPage(customerKey) {
+            selectedCustomerKey = customerKey;
+            document.getElementById('ledger-page').classList.remove('hidden');
+            loadLedgerData();
+        }
+
+        function closeLedgerPage() {
+            if (selectedCustomerKey) {
+                db.ref(`customers/${selectedCustomerKey}`).off();
+                db.ref(`ledgers/${selectedCustomerKey}`).off();
+            }
+            const ledgerPage = document.getElementById('ledger-page');
+            if (ledgerPage) ledgerPage.classList.add('hidden');
+            selectedCustomerKey = null;
+        }
+
+        function loadLedgerData() {
+            if (!selectedCustomerKey) return;
+
+            db.ref(`customers/${selectedCustomerKey}`).off();
+            db.ref(`ledgers/${selectedCustomerKey}`).off();
+
+            db.ref(`customers/${selectedCustomerKey}`).on('value', snapshot => {
+                const val = snapshot.val();
+                if (!val) return;
+
+                document.getElementById('led-cust-name').textContent = val.name;
+                document.getElementById('led-cust-phone').textContent = val.phone;
+
+                const status = val.balance >= 0 ? "ملیں گے" : "دینے ہیں";
+                document.getElementById('led-cust-balance').textContent = `${Math.abs(val.balance)} روپے`;
+                document.getElementById('led-cust-status').textContent = status;
+                document.getElementById('led-cust-balance').className = `text-lg font-bold ${val.balance >= 0 ? 'text-green-600' : 'text-red-600'}`;
+            });
+
+            db.ref(`ledgers/${selectedCustomerKey}`).on('value', snapshot => {
+                const list = document.getElementById('ledger-list');
+                if(!list) return;
+                list.innerHTML = '';
+
+                snapshot.forEach(child => {
+                    const lKey = child.key;
+                    const val = child.val();
+                    const dObj = new Date(val.timestamp);
+
+                    const typeText = val.type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
+                    const typeColor = val.type === 'give' ? 'text-red-600' : 'text-green-600';
+                    const escapedDetails = val.details.replace(/'/g, "\\'");
+
+                    list.innerHTML += `
+                        <div class="py-2 flex flex-col gap-1 text-xs border-b border-gray-100">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-bold text-gray-800">${val.details}</h5>
+                                    <p class="text-[9px] text-gray-400">${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="${typeColor} font-bold text-sm">${val.amount} روپے</span>
+                                    <span class="text-[9px] text-gray-400 block">${typeText}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-1.5 pt-1 no-print">
+                                <button onclick="deleteLedgerEntry('${lKey}', ${val.amount}, '${val.type}')" class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-red-700">
+                                    <i class="fa-solid fa-trash-can"></i> حذف
+                                </button>
+                                <button onclick="shareLedgerWhatsApp('${escapedDetails}', ${val.amount}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
+                                    <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
+                                </button>
+                                <button onclick="generateSingleEntryReceipt('${selectedCustomerKey}', '${escapedDetails}', ${val.amount}, '${val.type}', ${val.timestamp}, event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
+                                    <i class="fa-solid fa-print"></i> پی ڈی ایف
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function saveLedgerEntry(type) {
+            const amount = parseFloat(document.getElementById('led-amount').value);
+            const details = document.getElementById('led-details').value;
+
+            if (!amount || amount <= 0) return alert("رقم لکھیں!");
+
+            const entry = {
+                amount: amount,
+                details: details || "بغیر نام حساب",
+                type: type,
+                timestamp: Date.now()
+            };
+
+            db.ref(`ledgers/${selectedCustomerKey}`).push(entry).then(() => {
+                const custRef = db.ref(`customers/${selectedCustomerKey}`);
+                custRef.once('value').then(snap => {
+                    const curBal = snap.val().balance || 0;
+                    let newBal = curBal;
+                    if (type === 'give') {
+                        newBal -= amount;
+                    } else {
+                        newBal += amount;
+                    }
+                    custRef.update({ balance: newBal });
+                });
+
+                document.getElementById('led-amount').value = '';
+                document.getElementById('led-details').value = '';
+            });
+        }
+
+        function deleteLedgerEntry(entryKey, amount, type) {
+            if (confirm("کیا آپ واقعی یہ انٹری ہسٹری سے ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                db.ref(`ledgers/${selectedCustomerKey}/${entryKey}`).remove().then(() => {
+                    const custRef = db.ref(`customers/${selectedCustomerKey}`);
+                    custRef.once('value').then(snap => {
+                        const curBal = snap.val().balance || 0;
+                        let newBal = curBal;
+                        if (type === 'give') {
+                            newBal += amount;
+                        } else {
+                            newBal -= amount;
+                        }
+                        custRef.update({ balance: newBal });
+                    });
+                });
+            }
+        }
+
+        function shareLedgerWhatsApp(details, amount, type, timestamp) {
+            const dObj = new Date(timestamp);
+            const typeText = type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
+            const message = `*جی بھائی کھاتا رسید*\n----------------------------\n*تفصیل:* ${details}\n*رقم:* ${amount} روپے\n*قسم:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function generateCustomerReport(customerKey, event) {
+            if (event) event.stopPropagation();
+
+            const customer = allCustomers.find(c => c.key === customerKey);
+            if (!customer) return;
+
+            document.getElementById('p-biz-name').textContent = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
+            document.getElementById('p-owner-name').textContent = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
+            document.getElementById('p-biz-phone').textContent = localStorage.getItem('gb_bizPhone') || 'نمبر';
+            document.getElementById('p-biz-email').textContent = localStorage.getItem('gb_bizEmail') || 'جی میل';
+
+            document.getElementById('p-cust-name').textContent = customer.name;
+            document.getElementById('p-cust-phone').textContent = customer.phone;
+            
+            const status = customer.balance >= 0 ? "ملیں گے" : "دینے ہیں";
+            document.getElementById('p-cust-bal').textContent = `${Math.abs(customer.balance)} روپے (${status})`;
+
+            const tableBody = document.getElementById('p-table-body');
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">لوڈنگ ہو رہی ہے...</td></tr>';
+
+            document.getElementById('print-area').classList.add('print-show');
+            document.getElementById('print-stock-area').classList.remove('print-show');
+            document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-card-only').classList.remove('print-show');
+
+            db.ref(`ledgers/${customerKey}`).once('value', snapshot => {
+                tableBody.innerHTML = '';
+                if (!snapshot.exists()) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
+                    window.print();
+                    return;
+                }
+
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    const dObj = new Date(val.timestamp);
+                    const formattedDate = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+                    const typeText = val.type === 'give' ? 'دیا ادھار' : 'وصول رقم';
+                    const alignmentClass = val.type === 'give' ? 'text-red-600' : 'text-green-600';
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="p-2">${formattedDate}</td>
+                            <td class="p-2">${val.details}</td>
+                            <td class="p-2 font-semibold ${alignmentClass}">${typeText}</td>
+                            <td class="p-2 text-left font-bold text-gray-900">${val.amount} روپے</td>
+                        </tr>
+                    `;
+                });
+
+                window.print();
+            });
+        }
+
+        function generateSingleEntryReceipt(customerKey, details, amount, type, timestamp, event) {
+            if (event) event.stopPropagation();
+
+            const bizName = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
+            const ownerName = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
+            const bizPhone = localStorage.getItem('gb_bizPhone') || 'نمبر';
+            const bizEmail = localStorage.getItem('gb_bizEmail') || 'جی میل';
+
+            document.getElementById('psr-biz-name').textContent = bizName;
+            document.getElementById('psr-owner-name').textContent = ownerName;
+            document.getElementById('psr-biz-phone').textContent = bizPhone;
+            document.getElementById('psr-biz-email').textContent = bizEmail;
+
+            if (customerKey) {
+                const customer = allCustomers.find(c => c.key === customerKey);
+                if (customer) {
+                    document.getElementById('psr-cust-name').textContent = customer.name;
+                    document.getElementById('psr-cust-phone').textContent = customer.phone;
+                }
+            } else {
+                document.getElementById('psr-cust-name').textContent = "کیش ٹرانزیکشن رسید";
+                document.getElementById('psr-cust-phone').textContent = "-";
+            }
+
+            const dObj = new Date(timestamp);
+            document.getElementById('psr-date').textContent = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+            document.getElementById('psr-details').textContent = details;
+            
+            const typeText = (type === 'give' || type === 'out') ? 'دیا ادھار (-)' : 'وصول کیا (+)';
+            const typeClass = (type === 'give' || type === 'out') ? 'text-red-600' : 'text-green-600';
+            document.getElementById('psr-type').textContent = typeText;
+            document.getElementById('psr-type').className = `font-bold ${typeClass}`;
+            document.getElementById('psr-amount').textContent = `${amount} روپے`;
+
+            document.getElementById('print-area').classList.remove('print-show');
+            document.getElementById('print-stock-area').classList.remove('print-show');
+            document.getElementById('print-card-only').classList.remove('print-show');
+            document.getElementById('print-single-receipt').classList.add('print-show');
+
+            window.print();
+        }
+
+        function addStockItem() {
+            const name = document.getElementById('item-name').value;
+            const qty = parseInt(document.getElementById('item-qty').value) || 0;
+            const price = parseFloat(document.getElementById('item-price').value) || 0;
+
+            if (!name) return alert("پروڈکٹ کا نام لکھنا لازمی ہے!");
+
+            const item = {
+                name: name,
+                qty: qty,
+                price: price,
+                timestamp: Date.now()
+            };
+
+            db.ref('stock').push(item).then(() => {
+                document.getElementById('item-name').value = '';
+                document.getElementById('item-qty').value = '';
+                document.getElementById('item-price').value = '';
+            });
+        }
+
+        function deleteStockItem(key, event) {
+            event.stopPropagation();
+            if (confirm("کیا آپ واقعی یہ پروڈکٹ اسٹاک سے مستقل طور پر حذف کرنا چاہتے ہیں؟")) {
+                db.ref(`stock/${key}`).remove();
+                db.ref(`stock_ledgers/${key}`).remove();
+                closeStockDetailPage();
+            }
+        }
+
+        function renderStock(data) {
+            const list = document.getElementById('stock-list');
+            if(!list) return;
+            list.innerHTML = '';
+
+            data.forEach(val => {
+                const dObj = new Date(val.timestamp || Date.now());
+
+                list.innerHTML += `
+                    <div onclick="openStockDetailPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1 cursor-pointer hover:bg-gray-50 transition relative">
+                        <div class="flex justify-between items-start text-xs">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
+                                <p class="text-[10px] text-gray-500">قیمت: ${val.price} روپے</p>
+                                <p class="text-[9px] text-gray-400 mt-0.5">
+                                    شامل کیا: ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-green-600 font-bold block text-sm">${val.qty} دانے</span>
+                                <span class="text-[9px] text-gray-400 block">دستیاب اسٹاک</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-1.5 pt-1.5 border-t border-gray-100 no-print">
+                            <button onclick="deleteStockItem('${val.key}', event)" class="bg-red-50 text-red-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-red-200">
+                                <i class="fa-solid fa-trash-can"></i>  ڈیلیٹ
+                            </button>
+                            <button onclick="generateStockReport('${val.key}', event)" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-blue-200">
+                                <i class="fa-solid fa-file-pdf"></i> رپورٹ پی ڈی ایف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterStock() {
+            const query = document.getElementById('search-stock').value.toLowerCase().trim();
+            const filtered = allStockItems.filter(item => {
+                return item.name.toLowerCase().includes(query);
+            });
+            renderStock(filtered);
+        }
+
+        function openStockDetailPage(itemKey) {
+            selectedStockItemKey = itemKey;
+            document.getElementById('stock-detail-page').classList.remove('hidden');
+            loadStockLedgerData();
+        }
+
+        function closeStockDetailPage() {
+            if (selectedStockItemKey) {
+                db.ref(`stock/${selectedStockItemKey}`).off();
+                db.ref(`stock_ledgers/${selectedStockItemKey}`).off();
+            }
+            const stockDetailPage = document.getElementById('stock-detail-page');
+            if (stockDetailPage) stockDetailPage.classList.add('hidden');
+            selectedStockItemKey = null;
+        }
+
+        function loadStockLedgerData() {
+            if (!selectedStockItemKey) return;
+
+            db.ref(`stock/${selectedStockItemKey}`).off();
+            db.ref(`stock_ledgers/${selectedStockItemKey}`).off();
+
+            db.ref(`stock/${selectedStockItemKey}`).on('value', snapshot => {
+                const val = snapshot.val();
+                if (!val) return;
+
+                document.getElementById('st-item-name').textContent = val.name;
+                document.getElementById('st-item-price').textContent = `${val.price} روپے فی آئٹم`;
+                document.getElementById('st-item-qty').textContent = `${val.qty} عدد`;
+            });
+
+            db.ref(`stock_ledgers/${selectedStockItemKey}`).on('value', snapshot => {
+                const list = document.getElementById('stock-ledger-list');
+                if(!list) return;
+                list.innerHTML = '';
+
+                snapshot.forEach(child => {
+                    const lKey = child.key;
+                    const val = child.val();
+                    const dObj = new Date(val.timestamp);
+
+                    const typeText = val.type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
+                    const typeColor = val.type === 'in' ? 'text-green-600' : 'text-red-600';
+
+                    list.innerHTML += `
+                        <div class="py-2 flex flex-col gap-1 text-xs border-b border-gray-100">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h5 class="font-bold text-gray-800">${val.details}</h5>
+                                    <p class="text-[9px] text-gray-400">${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="${typeColor} font-bold text-lg">${val.qty} عدد</span>
+                                    <span class="text-[9px] text-gray-400 block">${typeText}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-1.5 pt-1 no-print">
+                                <button onclick="deleteStockLedgerEntry('${lKey}', ${val.qty}, '${val.type}')" class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-red-700">
+                                    <i class="fa-solid fa-trash-can"></i> حذف
+                                </button>
+                                <button onclick="shareStockLedgerWhatsApp('${val.details}', ${val.qty}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
+                                    <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
+                                </button>
+                                <button onclick="generateStockReport('${selectedStockItemKey}', event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
+                                    <i class="fa-solid fa-print"></i> پی ڈی ایف
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function saveStockLedgerEntry(type) {
+            const qty = parseInt(document.getElementById('st-led-qty').value);
+            const details = document.getElementById('st-led-details').value;
+
+            if (!qty || qty <= 0) return alert("درست تعداد لکھیں!");
+
+            const entry = {
+                qty: qty,
+                details: details || "بغیر نام ٹرانزیکشن",
+                type: type,
+                timestamp: Date.now()
+            };
+
+            db.ref(`stock_ledgers/${selectedStockItemKey}`).push(entry).then(() => {
+                const itemRef = db.ref(`stock/${selectedStockItemKey}`);
+                itemRef.once('value').then(snap => {
+                    const currentQty = snap.val().qty || 0;
+                    let newQty = currentQty;
+                    if (type === 'in') {
+                        newQty += qty;
+                    } else {
+                        newQty -= qty;
+                    }
+                    itemRef.update({ qty: newQty });
+                });
+
+                document.getElementById('st-led-qty').value = '';
+                document.getElementById('st-led-details').value = '';
+            });
+        }
+
+        function deleteStockLedgerEntry(entryKey, qty, type) {
+            if (confirm("کیا آپ واقعی یہ انٹری اسٹاک ہسٹری سے خارج کرنا چاہتے ہیں؟")) {
+                db.ref(`stock_ledgers/${selectedStockItemKey}/${entryKey}`).remove().then(() => {
+                    const itemRef = db.ref(`stock/${selectedStockItemKey}`);
+                    itemRef.once('value').then(snap => {
+                        const currentQty = snap.val().qty || 0;
+                        let newQty = currentQty;
+                        if (type === 'in') {
+                            newQty -= qty;
+                        } else {
+                            newQty += qty;
+                        }
+                        itemRef.update({ qty: newQty });
+                    });
+                });
+            }
+        }
+
+        function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
+            const dObj = new Date(timestamp);
+            const typeText = type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
+            const message = `*جی بھائی کھاتا اسٹاک رسید*\n----------------------------\n*تفصیل:* ${details}\n*تعداد:* ${qty} عدد\n*عمل:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function generateStockReport(itemKey, event) {
+            if (event) event.stopPropagation();
+
+            const item = allStockItems.find(s => s.key === itemKey);
+            if (!item) return;
+
+            document.getElementById('ps-biz-name').textContent = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
+            document.getElementById('ps-owner-name').textContent = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
+            document.getElementById('ps-biz-phone').textContent = localStorage.getItem('gb_bizPhone') || 'نمبر';
+
+            document.getElementById('ps-item-name').textContent = item.name;
+            document.getElementById('ps-item-price').textContent = `${item.price} روپے`;
+            document.getElementById('ps-item-qty').textContent = `${item.qty} عدد`;
+            document.getElementById('ps-report-date').textContent = new Date().toLocaleDateString();
+
+            const tableBody = document.getElementById('ps-table-body');
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">لوڈنگ ہو رہی ہے...</td></tr>';
+
+            document.getElementById('print-area').classList.remove('print-show');
+            document.getElementById('print-stock-area').classList.add('print-show');
+            document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-card-only').classList.remove('print-show');
+
+            db.ref(`stock_ledgers/${itemKey}`).once('value', snapshot => {
+                tableBody.innerHTML = '';
+                if (!snapshot.exists()) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
+                    window.print();
+                    return;
+                }
+
+                snapshot.forEach(child => {
+                    const val = child.val();
+                    const dObj = new Date(val.timestamp);
+                    const formattedDate = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+                    const typeText = val.type === 'in' ? 'اسٹاک داخل' : 'اسٹاک خارج';
+                    const alignmentClass = val.type === 'in' ? 'text-green-600' : 'text-red-600';
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-gray-100">
+                            <td class="p-2">${formattedDate}</td>
+                            <td class="p-2">${val.details}</td>
+                            <td class="p-2 font-semibold ${alignmentClass}">${typeText}</td>
+                            <td class="p-2 text-left font-bold text-gray-900">${val.qty} عدد</td>
+                        </tr>
+                    `;
+                });
+
+                window.print();
+            });
+        }
+
+        // --- CALCULATOR ---
+        function pressCalc(val) {
+            document.getElementById('calc-screen').value += val;
+        }
+        function clearCalc() {
+            document.getElementById('calc-screen').value = '';
+        }
+        function solveCalc() {
+            try {
+                const res = eval(document.getElementById('calc-screen').value);
+                document.getElementById('calc-screen').value = res;
+            } catch (err) {
+                document.getElementById('calc-screen').value = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
