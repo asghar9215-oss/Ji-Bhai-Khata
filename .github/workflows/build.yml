@@ -22,12 +22,13 @@ jobs:
 
     - name: Initialize Android Base Project
       run: |
-        # یہاں گٹ ہب ایک مکمل اینڈرائیڈ ایپ کا سٹرکچر خود تیار کرے گا
-        # اور پیکیج نام com.stylelink.jibhaikhata سیٹ کرے گا
-        mkdir -p app/src/main/assets
-        cp index.html app/src/main/assets/index.html
-        
-        # گریڈل بلڈ کی بنیادی فائلز بنانا
+        # گریڈل کو بتانے کے لیے کہ 'app' ایک ماڈیول ہے، settings.gradle بنانا ضروری ہے
+        cat <<EOF > settings.gradle
+        include ':app'
+        rootProject.name = "Ji-Bhai-Khata"
+        EOF
+
+        # مین پروجیکٹ کی build.gradle بنانا
         cat <<EOF > build.gradle
         buildscript {
             repositories { google(); mavenCentral() }
@@ -36,7 +37,32 @@ jobs:
         allprojects { repositories { google(); mavenCentral() } }
         EOF
 
-        mkdir -p app
+        # ایپ کے فولڈرز اور فائلز تیار کرنا
+        mkdir -p app/src/main/assets
+        cp index.html app/src/main/assets/index.html
+        
+        # ایک بنیادی اینڈرائیڈ مینی فیسٹ فائل بنانا جو بلڈ کے لیے لازمی ہے
+        mkdir -p app/src/main
+        cat <<EOF > app/src/main/AndroidManifest.xml
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.stylelink.jibhaikhata">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <application
+                android:allowBackup="true"
+                android:label="Ji Bhai Khata"
+                android:supportsRtl="true"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                <activity android:name=".MainActivity" android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        EOF
+
+        # ایپ کی اپنی build.gradle فائل تیار کرنا
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
