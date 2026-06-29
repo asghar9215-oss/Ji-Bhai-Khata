@@ -54,13 +54,54 @@
             visibility: hidden !important;
         }
 
-        /* Advance Clean Printing Engine */
+        /* Overdue Red Blinking Alerts */
+        @keyframes blink-red {
+            0%, 100% { background-color: #ffffff; border-color: #f87171; }
+            50% { background-color: #fef2f2; border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        }
+        .deadline-blink {
+            animation: blink-red 1.5s infinite;
+            border: 1px solid #ef4444 !important;
+        }
+
+        /* Stock Out Red Blinking Alerts */
+        @keyframes blink-stock {
+            0%, 100% { background-color: #ffffff; border-color: #f87171; }
+            50% { background-color: #fff5f5; border-color: #ef4444; }
+        }
+        .out-of-stock-blink {
+            animation: blink-stock 1.5s infinite;
+            border: 1px solid #ef4444 !important;
+        }
+
+        /* Standard CSS print-templates (Keeps hidden on screen, shows on print) */
+        .print-template {
+            display: none !important;
+        }
+
+        /* Display print container on active print screen mode globally */
+        .print-show {
+            display: block !important;
+            width: 100% !important;
+            background: white !important;
+            color: black !important;
+            direction: rtl !important;
+        }
+
+        /* Advance Clean Printing Engine - Solves Blank Page WebView bug */
         @media print {
-            body {
-                background: white !important;
-                color: black !important;
+            html, body {
+                display: block !important;
+                position: static !important;
                 overflow: visible !important;
                 height: auto !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                background: white !important;
+                color: black !important;
             }
             body > *:not(.print-show) {
                 display: none !important;
@@ -68,42 +109,47 @@
             .print-show {
                 display: block !important;
                 width: 100% !important;
-                position: relative !important;
-                top: 0 !important;
-                left: 0 !important;
-                padding: 10px !important;
+                position: static !important;
+                padding: 15px !important;
+                margin: 0 !important;
                 direction: rtl !important;
+                overflow: visible !important;
             }
-        }
-        
-        #print-area, #print-stock-area, #print-card-only, #print-single-receipt {
-            display: none;
         }
     </style>
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
 
     <!-- 1. Registration/Onboarding Screen -->
-    <div id="onboarding-screen" class="fixed inset-0 bg-white z-50 p-6 flex flex-col justify-center items-center hidden no-print">
-        <div class="w-full max-w-sm space-y-3">
-            <div class="text-center mb-2">
-                <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
-                <p class="text-xs text-gray-500 mt-0.5 mb-2">رجسٹریشن فارم پُر کریں</p>
-                
-                <div class="lang-selector bg-gray-50 p-2 rounded border">
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
-                    <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
+    <div id="onboarding-screen" class="fixed inset-0 bg-white z-50 flex flex-col hidden no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="showLoginScreen()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس لاگ ان
+            </button>
+            <h2 class="text-sm font-bold">نیا اکاؤنٹ بنائیں</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-6 flex flex-col justify-center items-center overflow-y-auto">
+            <div class="w-full max-w-sm space-y-3 my-auto">
+                <div class="text-center mb-2">
+                    <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
+                    <p class="text-xs text-gray-500 mt-0.5 mb-2">رجسٹریشن فارم پُر کریں</p>
+                    
+                    <div class="lang-selector bg-gray-50 p-2 rounded border">
+                        <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
+                        <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
+                        <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
+                        <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
+                    </div>
                 </div>
-            </div>
-            <div class="space-y-2">
-                <input type="text" id="ob-biz-name" placeholder="اپنے کاروبار کا نام لکھیں" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="text" id="ob-owner-name" placeholder="آپ کا نام (پروپرائٹر)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="text" id="ob-biz-phone" placeholder="کاروباری موبائل نمبر" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
-                <input type="email" id="ob-biz-email" placeholder="کاروباری جی میل (Gmail)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="password" id="ob-password" placeholder="ایپ لاک پاسورڈ بنائیں" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
-                <button onclick="saveOnboarding()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-red-700 transition">محفوظ کریں اور شروع کریں</button>
+                <div class="space-y-2">
+                    <input type="text" id="ob-biz-name" placeholder="اپنے کاروبار کا نام لکھیں" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                    <input type="text" id="ob-owner-name" placeholder="آپ کا نام (پروپرائٹر)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                    <input type="text" id="ob-biz-phone" placeholder="کاروباری موبائل نمبر" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
+                    <input type="email" id="ob-biz-email" placeholder="کاروباری جی میل (Gmail)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
+                    <input type="password" id="ob-password" placeholder="ایپ لاک پاسورڈ بنائیں" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
+                    <button onclick="saveOnboarding()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-red-700 transition">محفوظ کریں اور شروع کریں</button>
+                </div>
             </div>
         </div>
     </div>
@@ -126,7 +172,8 @@
                 <input type="text" id="login-name" placeholder="رجسٹرڈ پروپرائٹر نام لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600">
                 <input type="text" id="login-phone" placeholder="رجسٹرڈ موبائل نمبر" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
                 <input type="password" id="login-pass" placeholder="رجسٹرڈ پاسورڈ لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
-                <button onclick="performLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition">لاگ ان کریں</button>
+                <button onclick="performLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition mb-1">لاگ ان کریں</button>
+                <button onclick="showSignupScreen()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg font-bold text-xs hover:bg-gray-300 transition">نیا اکاؤنٹ بنائیں (سائن اپ)</button>
             </div>
         </div>
     </div>
@@ -138,6 +185,10 @@
     <header class="bg-red-600 text-white p-2.5 sticky top-0 z-40 shadow flex flex-col no-print">
         <div class="flex justify-between items-center">
             <h1 class="text-base font-bold">جی بھائی کھاتا</h1>
+            <!-- Fast logout icon in header -->
+            <button onclick="logoutUser()" class="text-white hover:text-red-200 p-1 flex items-center justify-center">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            </button>
         </div>
         
         <div class="lang-selector border-t border-red-500 pt-1.5">
@@ -208,6 +259,10 @@
                 <div class="space-y-1.5">
                     <input type="text" id="cust-name" placeholder="گاہک کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
                     <input type="text" id="cust-phone" placeholder="موبائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] text-gray-500 font-bold">ادھار واپسی آخری تاریخ (اختیاری):</label>
+                        <input type="date" id="cust-due-date" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
+                    </div>
                     <button onclick="addCustomer()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">محفوظ کریں</button>
                 </div>
             </div>
@@ -286,8 +341,8 @@
                 </div>
             </div>
 
-            <!-- Sub Navigation Buttons -->
-            <div class="grid grid-cols-3 gap-2">
+            <!-- Sub Navigation Buttons (Re-structured beautifully) -->
+            <div class="grid grid-cols-2 gap-3 mt-4">
                 <button onclick="openProfileModal()" class="bg-red-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-red-700 transition">
                     <i class="fa-solid fa-user-gear text-lg"></i>
                     <span>کاروباری معلومات</span>
@@ -296,9 +351,17 @@
                     <i class="fa-solid fa-address-card text-lg"></i>
                     <span>بزنس کارڈ</span>
                 </button>
+                <button onclick="openPrivacyPage()" class="bg-blue-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                    <span>پرائیویسی پالیسی</span>
+                </button>
                 <button onclick="logoutUser()" class="bg-gray-800 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-gray-900 transition">
                     <i class="fa-solid fa-right-from-bracket text-lg"></i>
                     <span>لاگ آؤٹ کریں</span>
+                </button>
+                <button onclick="deleteAccountPermanently()" class="bg-red-800 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-red-950 transition col-span-2">
+                    <i class="fa-solid fa-trash-can text-lg"></i>
+                    <span>اکاؤنٹ ہمیشہ کے لیے ڈیلیٹ کریں</span>
                 </button>
             </div>
         </section>
@@ -330,6 +393,12 @@
                 <div class="grid grid-cols-2 gap-2">
                     <input type="number" id="led-amount" placeholder="رقم" class="border p-1.5 text-xs rounded focus:outline-red-600 text-right">
                     <input type="text" id="led-details" placeholder="تفصیل" class="border p-1.5 text-xs rounded focus:outline-red-600">
+                </div>
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <div class="col-span-2 flex flex-col gap-1">
+                        <label class="text-[10px] text-gray-500 font-bold">ادھار واپسی آخری تاریخ (اختیاری):</label>
+                        <input type="date" id="led-due-date" class="border p-1.5 text-xs rounded focus:outline-red-600 w-full" placeholder="واپسی تاریخ">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="saveLedgerEntry('give')" class="bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">ادھار دیا (-)</button>
@@ -381,14 +450,17 @@
         </div>
     </div>
 
-    <!-- Edit Business Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3">
-            <button onclick="closeProfileModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
-                <i class="fa-solid fa-xmark text-lg"></i>
+    <!-- Edit Business Profile Overlay -->
+    <div id="profile-modal" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="closeProfileModal()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
             </button>
-            <h3 class="font-bold text-xs text-gray-700 border-b pb-2"><i class="fa-solid fa-shop"></i> معلومات تبدیل کریں</h3>
-            <div class="space-y-2">
+            <h2 class="text-sm font-bold">کاروباری معلومات تبدیل کریں</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-4 overflow-y-auto space-y-3">
+            <div class="bg-white p-3 rounded border shadow-sm space-y-2">
                 <input type="text" id="edit-biz-name" placeholder="کاروبار کا نام" class="w-full border p-2 rounded text-xs focus:outline-red-600">
                 <input type="text" id="edit-owner-name" placeholder="پروپرائٹر کا نام" class="w-full border p-2 rounded text-xs focus:outline-red-600">
                 <input type="text" id="edit-biz-phone" placeholder="موبائل نمبر" class="w-full border p-2 rounded text-xs focus:outline-red-600 text-right">
@@ -399,14 +471,16 @@
         </div>
     </div>
 
-    <!-- Business Card Maker Modal Popup -->
-    <div id="card-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3 overflow-y-auto max-h-[90vh]">
-            <button onclick="closeCardModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
-                <i class="fa-solid fa-xmark text-lg"></i>
+    <!-- Business Card Maker Overlay -->
+    <div id="card-modal" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="closeCardModal()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
             </button>
-            <h3 class="font-bold text-sm text-gray-700 border-b pb-1"><i class="fa-solid fa-address-card"></i> بزنس کارڈ میکر</h3>
-            
+            <h2 class="text-sm font-bold">بزنس کارڈ میکر</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-4 overflow-y-auto space-y-4">
             <div class="space-y-1.5">
                 <input type="text" id="biz-card-name-input" placeholder="کاروبار کا نام" oninput="updateCard()" class="w-full border p-1.5 text-xs rounded">
                 <input type="text" id="biz-card-phone-input" placeholder="رابطہ نمبر" oninput="updateCard()" class="w-full border p-1.5 text-xs rounded text-right">
@@ -439,18 +513,30 @@
         </div>
     </div>
 
-    <!-- Printable container strictly for Business Card printing only -->
-    <div id="print-card-only" class="p-4 flex justify-center items-center h-screen bg-white">
-        <div id="print-card-target" class="w-80 h-44 p-4 rounded-xl shadow-lg border relative overflow-hidden flex flex-col justify-between"></div>
+    <!-- Privacy Policy Overlay -->
+    <div id="privacy-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
+            <button onclick="closePrivacyPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
+            </button>
+            <h2 class="text-sm font-bold">پرائیویسی پالیسی</h2>
+            <div></div>
+        </header>
+        <div class="flex-1 p-4 overflow-y-auto text-xs text-gray-700 leading-relaxed space-y-3">
+            <h3 class="text-sm font-bold text-gray-900 border-b pb-1">جی بھائی کھاتا - پرائیویسی گائیڈ لائنز</h3>
+            <p>جی بھائی کھاتا ایپ میں آپ کا تمام ڈیٹا انتہائی محفوظ اور باحفاظت رکھا جاتا ہے۔ ہم آپ کے کاروباری ریکارڈز، کھاتہ جات اور اسٹاک کی معلومات کو فائر بیس ریئل ٹائم ڈیٹا بیس میں مکمل سیکورٹی کے ساتھ محفوظ کرتے ہیں۔</p>
+            <p><strong>1۔ ڈیٹا سیکیورٹی:</strong> آپ کا ڈیٹا صرف آپ کے پاسورڈ کے ذریعے ہی دیکھا جا سکتا ہے۔</p>
+            <p><strong>2۔ کسٹمر سیکیورٹی:</strong> گاہکوں کے موبائل نمبر اور لین دین کا خلاصہ خفیہ رکھا جاتا ہے۔</p>
+            <p><strong>3۔ مستقل ڈیلیٹ کرنا:</strong> اگر آپ اپنا اکاؤنٹ مستقل ڈیلیٹ کرتے ہیں تو تمام ڈیٹا مستقل طور پر ضائع ہو جاتا ہے جس کی بحالی ناممکن ہے۔</p>
+        </div>
     </div>
 
     <!-- Beautiful Optimized Ledger Printing Container (Total Entries Report) -->
-    <div id="print-area" class="p-6 bg-white text-black leading-relaxed">
+    <div id="print-area" class="print-template p-6 bg-white text-black leading-relaxed">
         <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
             <h1 id="p-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">بزنس لیجر اسٹیٹمنٹ رپورٹ</p>
             
-            <!-- Labels Top, Values Bottom format -->
             <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
                 <div>
                     <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
@@ -503,13 +589,12 @@
         </div>
     </div>
 
-    <!-- Hidden Single Entry Receipt Printing Container (One Entry Receipt Voucher) -->
-    <div id="print-single-receipt" class="p-6 bg-white text-black leading-relaxed">
+    <!-- Hidden Single Entry Receipt Printing Container -->
+    <div id="print-single-receipt" class="print-template p-6 bg-white text-black leading-relaxed">
         <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
             <h1 id="psr-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">ٹرانزیکشن رسید (ووچر)</p>
             
-            <!-- Metadata columns formatted: Label Top, Value Bottom -->
             <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
                 <div>
                     <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
@@ -565,7 +650,7 @@
     </div>
 
     <!-- Beautiful Optimized Stock Printing Container -->
-    <div id="print-stock-area" class="p-6 bg-white text-black leading-relaxed">
+    <div id="print-stock-area" class="print-template p-6 bg-white text-black leading-relaxed">
         <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
             <h1 id="ps-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">پروڈکٹ اسٹاک ہسٹری رپورٹ</p>
@@ -703,6 +788,7 @@
         let selectedCustomerKey = null;
         let selectedStockItemKey = null;
         let currentCardTemplate = 1;
+        let activeOverlayId = null; // Tracks active screen overlays for printing recovery states
 
         window.onload = function() {
             try {
@@ -713,6 +799,12 @@
                 console.error("Initialization error:", e);
             }
         };
+
+        // Automatic printer interface event listener to reset screen after printing
+        window.addEventListener('afterprint', () => {
+            resetPrintTemplates();
+            toggleAppVisibilityForPrint(false);
+        });
 
         function checkUserOnboarding() {
             const savedBiz = localStorage.getItem('gb_bizName');
@@ -779,6 +871,26 @@
             }
         }
 
+        function showSignupScreen() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('onboarding-screen').classList.remove('hidden');
+        }
+
+        function showLoginScreen() {
+            document.getElementById('onboarding-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function deleteAccountPermanently() {
+            if (confirm("انتباہ! یہ اکاؤنٹ ڈیلیٹ کرنے سے آپ کا سارا ڈیٹا فلیش اور موبائل سے مستقل طور پر ڈیلیٹ ہو جائے گا اور دوبارہ نہیں ملے گا۔ کیا آپ واقعی آگے بڑھنا چاہتے ہیں؟")) {
+                if (confirm("کیا آپ واقعی پرامید ہیں؟ یہ عمل واپس نہیں کیا جا سکتا اور ڈیٹا بحال نہیں ہو گا!")) {
+                    localStorage.clear();
+                    alert("آپ کا ڈیٹا اور اکاؤنٹ کامیابی سے ختم کر دیا گیا ہے۔");
+                    location.reload();
+                }
+            }
+        }
+
         function loadProfileToInputs() {
             document.getElementById('edit-biz-name').value = localStorage.getItem('gb_bizName') || '';
             document.getElementById('edit-owner-name').value = localStorage.getItem('gb_ownerName') || '';
@@ -815,6 +927,7 @@
                 closeStockDetailPage();
                 closeProfileModal();
                 closeCardModal();
+                closePrivacyPage();
 
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
                 const targetTab = document.getElementById(tabId + '-tab');
@@ -839,16 +952,28 @@
         }
 
         function openProfileModal() {
+            activeOverlayId = 'profile-modal';
             document.getElementById('profile-modal').classList.remove('hidden');
         }
         function closeProfileModal() {
+            activeOverlayId = null;
             document.getElementById('profile-modal').classList.add('hidden');
         }
         function openCardModal() {
+            activeOverlayId = 'card-modal';
             document.getElementById('card-modal').classList.remove('hidden');
         }
         function closeCardModal() {
+            activeOverlayId = null;
             document.getElementById('card-modal').classList.add('hidden');
+        }
+        function openPrivacyPage() {
+            activeOverlayId = 'privacy-page';
+            document.getElementById('privacy-page').classList.remove('hidden');
+        }
+        function closePrivacyPage() {
+            activeOverlayId = null;
+            document.getElementById('privacy-page').classList.add('hidden');
         }
 
         const cardStyles = {
@@ -886,6 +1011,113 @@
             document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
         }
 
+        // Dedicated helper to prepare target print container perfectly
+        function preparePrint(activeId) {
+            const printIds = ['print-area', 'print-stock-area', 'print-single-receipt', 'print-card-only'];
+            printIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('print-show');
+                    el.classList.add('print-template');
+                }
+            });
+
+            const activeEl = document.getElementById(activeId);
+            if (activeEl) {
+                activeEl.classList.remove('print-template');
+                activeEl.classList.add('print-show');
+            }
+        }
+
+        // Dedicated function to clear out and reset print template states (Ensures templates stay hidden)
+        function resetPrintTemplates() {
+            const printIds = ['print-area', 'print-stock-area', 'print-single-receipt', 'print-card-only'];
+            printIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('print-show');
+                    el.classList.add('print-template');
+                }
+            });
+        }
+
+        // Hide/Show entire DOM structures dynamically to force WebView rendering safety
+        function toggleAppVisibilityForPrint(isPrinting) {
+            const mainAppElements = [
+                'onboarding-screen', 'login-screen', 'ledger-page', 
+                'stock-detail-page', 'profile-modal', 'card-modal', 
+                'privacy-page'
+            ];
+            
+            const header = document.querySelector('header');
+            const main = document.querySelector('main');
+            const nav = document.querySelector('nav');
+
+            if (isPrinting) {
+                if (header) header.style.setProperty('display', 'none', 'important');
+                if (main) main.style.setProperty('display', 'none', 'important');
+                if (nav) nav.style.setProperty('display', 'none', 'important');
+                mainAppElements.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.setProperty('display', 'none', 'important');
+                });
+            } else {
+                if (header) header.style.display = '';
+                if (main) main.style.display = '';
+                if (nav) nav.style.display = '';
+                mainAppElements.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = '';
+                });
+                
+                mainAppElements.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+
+                // Correctly restore onboarding/login/overlay status
+                const savedBiz = localStorage.getItem('gb_bizName');
+                const isLoggedIn = localStorage.getItem('gb_isLoggedIn');
+
+                if (!savedBiz) {
+                    document.getElementById('onboarding-screen').classList.remove('hidden');
+                } else if (savedBiz && isLoggedIn !== 'true') {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                } else {
+                    if (activeOverlayId) {
+                        const activeEl = document.getElementById(activeOverlayId);
+                        if (activeEl) activeEl.classList.remove('hidden');
+                    }
+                }
+            }
+        }
+
+        // Standard System Printer Bridge (Compatible with Browser and APK/AAB WebViews)
+        function executeSystemPrint() {
+            if (window.AndroidPrint && typeof window.AndroidPrint.printPage === 'function') {
+                window.AndroidPrint.printPage();
+            } else {
+                window.print();
+            }
+        }
+
+        // Robust WebView Delay Printer Engine to prevent instant cancellation/flickers
+        function triggerPrintFlow(templateId) {
+            preparePrint(templateId);
+            toggleAppVisibilityForPrint(true);
+            
+            // Allow the mobile DOM engine exactly 300ms to reflow class layouts successfully
+            setTimeout(() => {
+                executeSystemPrint();
+                
+                // Safe asynchronous fallback reset
+                setTimeout(() => {
+                    toggleAppVisibilityForPrint(false);
+                    resetPrintTemplates();
+                }, 1200);
+            }, 300);
+        }
+
         function printBusinessCard() {
             const printTarget = document.getElementById('print-card-target');
             const previewCard = document.getElementById('biz-card-preview');
@@ -893,12 +1125,7 @@
             printTarget.innerHTML = previewCard.innerHTML;
             printTarget.className = `${cardStyles[currentCardTemplate]} w-80 h-44 p-4 rounded-xl shadow-lg border relative overflow-hidden flex flex-col justify-between text-base`;
             
-            document.getElementById('print-area').classList.remove('print-show');
-            document.getElementById('print-stock-area').classList.remove('print-show');
-            document.getElementById('print-single-receipt').classList.remove('print-show');
-            document.getElementById('print-card-only').classList.add('print-show');
-
-            window.print();
+            triggerPrintFlow('print-card-only');
         }
 
         function initializeFirebaseListeners() {
@@ -1018,9 +1245,21 @@
             renderTransactions(filtered);
         }
 
+        function formatPhoneForWhatsApp(phone) {
+            if (!phone) return '';
+            let cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+            if (cleaned.startsWith('03') && cleaned.length === 11) {
+                cleaned = '92' + cleaned.slice(1);
+            } else if (cleaned.startsWith('3') && cleaned.length === 10) {
+                cleaned = '92' + cleaned;
+            }
+            return cleaned;
+        }
+
         function addCustomer() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
+            const dueDate = document.getElementById('cust-due-date').value;
 
             if (!name) return alert("نام لکھیں!");
 
@@ -1028,18 +1267,20 @@
                 name: name,
                 phone: phone || "کوئی نمبر نہیں",
                 balance: 0,
+                dueDate: dueDate || "",
                 timestamp: Date.now()
             };
 
             db.ref('customers').push(customer).then(() => {
                 document.getElementById('cust-name').value = '';
                 document.getElementById('cust-phone').value = '';
+                document.getElementById('cust-due-date').value = '';
             });
         }
 
         function deleteCustomer(key, event) {
             event.stopPropagation();
-            if (confirm("کیا آپ اس گاہک کا پورا کھاتا اور تمام ہسٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            if (confirm("کیا آپ اس گاہک کا پورا کھاتا اور تمام هسٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
                 db.ref(`customers/${key}`).remove();
                 db.ref(`ledgers/${key}`).remove();
                 closeLedgerPage();
@@ -1051,17 +1292,23 @@
             if(!list) return;
             list.innerHTML = '';
 
+            const today = new Date().toISOString().split('T')[0];
+
             data.forEach(val => {
                 const dObj = new Date(val.timestamp || Date.now());
                 const balColor = val.balance >= 0 ? 'text-green-600' : 'text-red-600';
                 const statusText = val.balance >= 0 ? 'ملیں گے' : 'دینے ہیں';
 
+                const isOverdue = val.dueDate && val.dueDate < today && val.balance < 0;
+                const overdueClass = isOverdue ? 'deadline-blink' : '';
+
                 list.innerHTML += `
-                    <div onclick="openLedgerPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1.5 cursor-pointer hover:bg-gray-50 transition relative">
+                    <div onclick="openLedgerPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1.5 cursor-pointer hover:bg-gray-50 transition relative ${overdueClass}">
                         <div class="flex justify-between items-start text-xs">
                             <div>
                                 <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
                                 <p class="text-[10px] text-gray-500">${val.phone}</p>
+                                ${val.dueDate ? `<p class="text-[9px] text-red-600 font-bold">واپسی تاریخ: ${val.dueDate}</p>` : ''}
                                 <p class="text-[9px] text-gray-400 mt-0.5">
                                     شامل کیا: ${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}
                                 </p>
@@ -1071,9 +1318,12 @@
                                 <span class="text-[9px] text-gray-400 block">${statusText}</span>
                             </div>
                         </div>
-                        <div class="flex justify-end gap-1.5 pt-1.5 border-t border-gray-100 no-print">
+                        <div class="flex justify-end gap-1.5 pt-1.5 border-t border-gray-100 no-print flex-wrap">
                             <button onclick="deleteCustomer('${val.key}', event)" class="bg-red-50 text-red-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-red-200">
-                                <i class="fa-solid fa-trash-can"></i>  ڈیلیٹ کریں
+                                <i class="fa-solid fa-trash-can"></i> ڈیلیٹ
+                            </button>
+                            <button onclick="shareMainCustomerLedgerWhatsApp('${val.key}', event)" class="bg-green-50 text-green-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-green-200">
+                                <i class="fa-brands fa-whatsapp"></i> واٹس ایپ خلاصہ
                             </button>
                             <button onclick="generateCustomerReport('${val.key}', event)" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md text-[10px] flex items-center gap-1 font-bold hover:bg-blue-200">
                                 <i class="fa-solid fa-file-pdf"></i> رپورٹ پی ڈی ایف
@@ -1094,6 +1344,7 @@
 
         function openLedgerPage(customerKey) {
             selectedCustomerKey = customerKey;
+            activeOverlayId = 'ledger-page';
             document.getElementById('ledger-page').classList.remove('hidden');
             loadLedgerData();
         }
@@ -1106,6 +1357,7 @@
             const ledgerPage = document.getElementById('ledger-page');
             if (ledgerPage) ledgerPage.classList.add('hidden');
             selectedCustomerKey = null;
+            activeOverlayId = null;
         }
 
         function loadLedgerData() {
@@ -1114,10 +1366,12 @@
             db.ref(`customers/${selectedCustomerKey}`).off();
             db.ref(`ledgers/${selectedCustomerKey}`).off();
 
+            let customerPhone = "";
             db.ref(`customers/${selectedCustomerKey}`).on('value', snapshot => {
                 const val = snapshot.val();
                 if (!val) return;
 
+                customerPhone = val.phone;
                 document.getElementById('led-cust-name').textContent = val.name;
                 document.getElementById('led-cust-phone').textContent = val.phone;
 
@@ -1126,6 +1380,8 @@
                 document.getElementById('led-cust-status').textContent = status;
                 document.getElementById('led-cust-balance').className = `text-lg font-bold ${val.balance >= 0 ? 'text-green-600' : 'text-red-600'}`;
             });
+
+            const today = new Date().toISOString().split('T')[0];
 
             db.ref(`ledgers/${selectedCustomerKey}`).on('value', snapshot => {
                 const list = document.getElementById('ledger-list');
@@ -1141,11 +1397,15 @@
                     const typeColor = val.type === 'give' ? 'text-red-600' : 'text-green-600';
                     const escapedDetails = val.details.replace(/'/g, "\\'");
 
+                    const isOverdueEntry = val.dueDate && val.dueDate < today && val.type === 'give';
+                    const entryAlertStyle = isOverdueEntry ? 'deadline-blink p-1.5 rounded' : '';
+
                     list.innerHTML += `
-                        <div class="py-2 flex flex-col gap-1 text-xs border-b border-gray-100">
+                        <div class="py-2 flex flex-col gap-1 text-xs border-b border-gray-100 ${entryAlertStyle}">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h5 class="font-bold text-gray-800">${val.details}</h5>
+                                    ${val.dueDate ? `<p class="text-[9px] text-red-600 font-bold">واپسی آخری تاریخ: ${val.dueDate}</p>` : ''}
                                     <p class="text-[9px] text-gray-400">${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}</p>
                                 </div>
                                 <div class="text-right">
@@ -1157,7 +1417,7 @@
                                 <button onclick="deleteLedgerEntry('${lKey}', ${val.amount}, '${val.type}')" class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-red-700">
                                     <i class="fa-solid fa-trash-can"></i> حذف
                                 </button>
-                                <button onclick="shareLedgerWhatsApp('${escapedDetails}', ${val.amount}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
+                                <button onclick="shareLedgerWhatsApp('${customerPhone}', '${escapedDetails}', ${val.amount}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
                                     <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
                                 </button>
                                 <button onclick="generateSingleEntryReceipt('${selectedCustomerKey}', '${escapedDetails}', ${val.amount}, '${val.type}', ${val.timestamp}, event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
@@ -1173,6 +1433,7 @@
         function saveLedgerEntry(type) {
             const amount = parseFloat(document.getElementById('led-amount').value);
             const details = document.getElementById('led-details').value;
+            const dueDate = document.getElementById('led-due-date').value;
 
             if (!amount || amount <= 0) return alert("رقم لکھیں!");
 
@@ -1180,6 +1441,7 @@
                 amount: amount,
                 details: details || "بغیر نام حساب",
                 type: type,
+                dueDate: type === 'give' ? (dueDate || "") : "",
                 timestamp: Date.now()
             };
 
@@ -1193,11 +1455,17 @@
                     } else {
                         newBal += amount;
                     }
-                    custRef.update({ balance: newBal });
+                    
+                    const updateData = { balance: newBal };
+                    if (type === 'give' && dueDate) {
+                        updateData.dueDate = dueDate;
+                    }
+                    custRef.update(updateData);
                 });
 
                 document.getElementById('led-amount').value = '';
                 document.getElementById('led-details').value = '';
+                document.getElementById('led-due-date').value = '';
             });
         }
 
@@ -1219,11 +1487,31 @@
             }
         }
 
-        function shareLedgerWhatsApp(details, amount, type, timestamp) {
+        function shareLedgerWhatsApp(phone, details, amount, type, timestamp) {
+            if (!phone || phone === "کوئی نمبر نہیں") {
+                return alert("اس گاہک کا موبائل نمبر رجسٹرڈ نہیں ہے!");
+            }
+            const formattedPhone = formatPhoneForWhatsApp(phone);
             const dObj = new Date(timestamp);
             const typeText = type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
             const message = `*جی بھائی کھاتا رسید*\n----------------------------\n*تفصیل:* ${details}\n*رقم:* ${amount} روپے\n*قسم:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function shareMainCustomerLedgerWhatsApp(customerKey, event) {
+            if (event) event.stopPropagation();
+            const customer = allCustomers.find(c => c.key === customerKey);
+            if (!customer) return;
+
+            if (!customer.phone || customer.phone === "کوئی نمبر نہیں") {
+                return alert("اس گاہک کا موبائل نمبر رجسٹرڈ نہیں ہے!");
+            }
+
+            const formattedPhone = formatPhoneForWhatsApp(customer.phone);
+            const bizName = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
+            const status = customer.balance >= 0 ? "ملیں گے" : "دینے ہیں";
+            const message = `*جی بھائی کھاتا - خلاصہ رپورٹ*\n----------------------------\n*کاروبار:* ${bizName}\n*گاہک:* ${customer.name}\n*موجودہ بقایا حساب:* ${Math.abs(customer.balance)} روپے (${status})\n----------------------------\nشکریہ!`;
+            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
         function generateCustomerReport(customerKey, event) {
@@ -1246,16 +1534,11 @@
             const tableBody = document.getElementById('p-table-body');
             tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">لوڈنگ ہو رہی ہے...</td></tr>';
 
-            document.getElementById('print-area').classList.add('print-show');
-            document.getElementById('print-stock-area').classList.remove('print-show');
-            document.getElementById('print-single-receipt').classList.remove('print-show');
-            document.getElementById('print-card-only').classList.remove('print-show');
-
             db.ref(`ledgers/${customerKey}`).once('value', snapshot => {
                 tableBody.innerHTML = '';
                 if (!snapshot.exists()) {
                     tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
-                    window.print();
+                    triggerPrintFlow('print-area');
                     return;
                 }
 
@@ -1276,7 +1559,7 @@
                     `;
                 });
 
-                window.print();
+                triggerPrintFlow('print-area');
             });
         }
 
@@ -1314,12 +1597,7 @@
             document.getElementById('psr-type').className = `font-bold ${typeClass}`;
             document.getElementById('psr-amount').textContent = `${amount} روپے`;
 
-            document.getElementById('print-area').classList.remove('print-show');
-            document.getElementById('print-stock-area').classList.remove('print-show');
-            document.getElementById('print-card-only').classList.remove('print-show');
-            document.getElementById('print-single-receipt').classList.add('print-show');
-
-            window.print();
+            triggerPrintFlow('print-single-receipt');
         }
 
         function addStockItem() {
@@ -1360,8 +1638,11 @@
             data.forEach(val => {
                 const dObj = new Date(val.timestamp || Date.now());
 
+                const isOutOfStock = val.qty <= 0;
+                const outOfStockClass = isOutOfStock ? 'out-of-stock-blink' : '';
+
                 list.innerHTML += `
-                    <div onclick="openStockDetailPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1 cursor-pointer hover:bg-gray-50 transition relative">
+                    <div onclick="openStockDetailPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1 cursor-pointer hover:bg-gray-50 transition relative ${outOfStockClass}">
                         <div class="flex justify-between items-start text-xs">
                             <div>
                                 <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
@@ -1371,8 +1652,8 @@
                                 </p>
                             </div>
                             <div class="text-right">
-                                <span class="text-green-600 font-bold block text-sm">${val.qty} دانے</span>
-                                <span class="text-[9px] text-gray-400 block">دستیاب اسٹاک</span>
+                                <span class="${isOutOfStock ? 'text-red-600' : 'text-green-600'} font-bold block text-sm">${val.qty} دانے</span>
+                                <span class="text-[9px] text-gray-400 block">${isOutOfStock ? 'اسٹاک ختم!' : 'دستیاب اسٹاک'}</span>
                             </div>
                         </div>
                         <div class="flex justify-end gap-1.5 pt-1.5 border-t border-gray-100 no-print">
@@ -1398,6 +1679,7 @@
 
         function openStockDetailPage(itemKey) {
             selectedStockItemKey = itemKey;
+            activeOverlayId = 'stock-detail-page';
             document.getElementById('stock-detail-page').classList.remove('hidden');
             loadStockLedgerData();
         }
@@ -1410,6 +1692,7 @@
             const stockDetailPage = document.getElementById('stock-detail-page');
             if (stockDetailPage) stockDetailPage.classList.add('hidden');
             selectedStockItemKey = null;
+            activeOverlayId = null;
         }
 
         function loadStockLedgerData() {
@@ -1518,13 +1801,6 @@
             }
         }
 
-        function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
-            const dObj = new Date(timestamp);
-            const typeText = type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
-            const message = `*جی بھائی کھاتا اسٹاک رسید*\n----------------------------\n*تفصیل:* ${details}\n*تعداد:* ${qty} عدد\n*عمل:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
         function generateStockReport(itemKey, event) {
             if (event) event.stopPropagation();
 
@@ -1543,16 +1819,11 @@
             const tableBody = document.getElementById('ps-table-body');
             tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">لوڈنگ ہو رہی ہے...</td></tr>';
 
-            document.getElementById('print-area').classList.remove('print-show');
-            document.getElementById('print-stock-area').classList.add('print-show');
-            document.getElementById('print-single-receipt').classList.remove('print-show');
-            document.getElementById('print-card-only').classList.remove('print-show');
-
             db.ref(`stock_ledgers/${itemKey}`).once('value', snapshot => {
                 tableBody.innerHTML = '';
                 if (!snapshot.exists()) {
                     tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
-                    window.print();
+                    triggerPrintFlow('print-stock-area');
                     return;
                 }
 
@@ -1573,7 +1844,7 @@
                     `;
                 });
 
-                window.print();
+                triggerPrintFlow('print-stock-area');
             });
         }
 
