@@ -1,4 +1,5 @@
-<!DOCTYPE html>   
+
+<!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -83,7 +84,7 @@
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
 
-    <!-- PDF Generating Loader Modal (NEW POPUP) -->
+    <!-- PDF Generating Loader Modal -->
     <div id="pdf-loader-modal" class="fixed inset-0 bg-black/80 z-[99] hidden flex flex-col items-center justify-center p-6 no-print">
         <div class="bg-white rounded-xl p-6 flex flex-col items-center space-y-4 shadow-2xl max-w-xs text-center border-t-4 border-red-600">
             <!-- Spinner -->
@@ -93,12 +94,12 @@
         </div>
     </div>
 
-    <!-- 1. Registration/Onboarding Screen -->
-    <div id="onboarding-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
-        <div class="w-full max-w-sm space-y-3">
-            <div class="text-center mb-2">
+    <!-- Unified Auth Screen (Login + Sign Up Dual Interface) -->
+    <div id="auth-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
+        <div class="w-full max-w-sm space-y-4">
+            <div class="text-center mb-1">
                 <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
-                <p class="text-xs text-gray-500 mt-0.5 mb-2">رجسٹریشن فارم پُر کریں</p>
+                <p id="auth-subtitle" class="text-xs text-gray-500 mb-2">لاگ ان یا سائن اپ معلومات درج کریں</p>
                 
                 <div class="lang-selector bg-gray-50 p-2 rounded border">
                     <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
@@ -107,36 +108,29 @@
                     <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
                 </div>
             </div>
-            <div class="space-y-2">
-                <input type="text" id="ob-biz-name" placeholder="اپنے کاروبار کا نام لکھیں" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="text" id="ob-owner-name" placeholder="آپ کا نام (پروپرائٹر)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="text" id="ob-biz-phone" placeholder="کاروباری موبائل نمبر" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
-                <input type="email" id="ob-biz-email" placeholder="کاروباری جی میل (Gmail)" class="w-full border p-2 text-sm rounded focus:outline-red-600">
-                <input type="password" id="ob-password" placeholder="ایپ لاک پاسورڈ بنائیں" class="w-full border p-2 text-sm rounded focus:outline-red-600 text-right">
-                <button onclick="saveOnboarding()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-red-700 transition">محفوظ کریں اور شروع کریں</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- 2. Secure Login Screen -->
-    <div id="login-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
-        <div class="w-full max-w-sm space-y-3">
-            <div class="text-center mb-2">
-                <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
-                <p class="text-xs text-gray-500 mb-2">لاگ ان معلومات درج کریں</p>
-                
-                <div class="lang-selector bg-gray-50 p-2 rounded border">
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
-                    <button class="lang-btn active" onclick="triggerGoogleTranslate('ur')">Urdu</button>
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">Arabic</button>
-                    <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">Hindi</button>
-                </div>
+            <!-- Two Tab Buttons Always Present -->
+            <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-lg border">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="py-2 text-xs font-bold rounded-md bg-white text-red-600 shadow-sm transition">لاگ ان کریں</button>
+                <button id="tab-signup" onclick="switchAuthTab('signup')" class="py-2 text-xs font-bold rounded-md text-gray-500 hover:text-gray-800 transition">نیا اکاؤنٹ بنائیں</button>
             </div>
-            <div class="space-y-2">
+
+            <!-- Form 1: Login Fields -->
+            <div id="form-login" class="space-y-2">
                 <input type="text" id="login-name" placeholder="رجسٹرڈ پروپرائٹر نام لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600">
                 <input type="text" id="login-phone" placeholder="رجسٹرڈ موبائل نمبر" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
                 <input type="password" id="login-pass" placeholder="رجسٹرڈ پاسورڈ لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
                 <button onclick="performLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition">لاگ ان کریں</button>
+            </div>
+
+            <!-- Form 2: Sign Up/Registration Fields -->
+            <div id="form-signup" class="space-y-2 hidden">
+                <input type="text" id="ob-biz-name" placeholder="اپنے کاروبار کا نام لکھیں" class="w-full border p-2 text-xs rounded focus:outline-red-600">
+                <input type="text" id="ob-owner-name" placeholder="آپ کا نام (پروپرائٹر)" class="w-full border p-2 text-xs rounded focus:outline-red-600">
+                <input type="text" id="ob-biz-phone" placeholder="کاروباری موبائل نمبر" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
+                <input type="email" id="ob-biz-email" placeholder="کاروباری جی میل (Gmail)" class="w-full border p-2 text-xs rounded focus:outline-red-600">
+                <input type="password" id="ob-password" placeholder="ایپ لاک پاسورڈ بنائیں" class="w-full border p-2 text-xs rounded focus:outline-red-600 text-right">
+                <button onclick="saveOnboarding()" class="w-full bg-red-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-red-700 transition">رجسٹریشن مکمل کریں</button>
             </div>
         </div>
     </div>
@@ -329,7 +323,7 @@
 
     </main>
 
-    <!-- Detailed Customer Ledger Page (FIXED: z-index increased to 50 to cover main header) -->
+    <!-- Detailed Customer Ledger Page -->
     <div id="ledger-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
         <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
             <button onclick="closeLedgerPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
@@ -367,7 +361,7 @@
         </div>
     </div>
 
-    <!-- Detailed Stock Item Page (FIXED: z-index increased to 50 to cover main header) -->
+    <!-- Detailed Stock Item Page -->
     <div id="stock-detail-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
         <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
             <button onclick="closeStockDetailPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
@@ -752,6 +746,8 @@
     <!-- StyleLink Style Programmatic Translation Trigger -->
     <script>
         window.triggerGoogleTranslate = function(langCode) {
+            window.currentLang = langCode; // <--- Save selected language code globally to track active language
+            
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.lang-btn').forEach(b => {
                 if(b.getAttribute('onclick').includes(langCode)) {
@@ -799,8 +795,73 @@
         let selectedStockItemKey = null;
         let currentCardTemplate = 1;
 
+        // Dynamic Language Dictionary for WhatsApp receipts
+        const msgTemplates = {
+            ur: {
+                title: "جی بھائی کھاتا رسید",
+                details: "تفصیل",
+                amount: "رقم",
+                type: "قسم",
+                date: "تاریخ",
+                thanks: "شکریہ!",
+                give: "ادھار دیا (-)",
+                receive: "وصول کیا (+)",
+                qty: "تعداد",
+                action: "عمل",
+                stockIn: "اسٹاک آیا (+)",
+                stockOut: "اسٹاک گیا (-)",
+                stockTitle: "جی بھائی کھاتا اسٹاک رسید"
+            },
+            en: {
+                title: "Ji Bhai Khata Receipt",
+                details: "Details",
+                amount: "Amount",
+                type: "Type",
+                date: "Date",
+                thanks: "Thank You!",
+                give: "Udhar Given (-)",
+                receive: "Amount Received (+)",
+                qty: "Quantity",
+                action: "Action",
+                stockIn: "Stock In (+)",
+                stockOut: "Stock Out (-)",
+                stockTitle: "Ji Bhai Khata Stock Receipt"
+            },
+            ar: {
+                title: "إيصال جي بهاي خاتا",
+                details: "التفاصيل",
+                amount: "المبلغ",
+                type: "النوع",
+                date: "التاريخ",
+                thanks: "شكرًا لك!",
+                give: "أعطى سلفة (-)",
+                receive: "تم استلام المبلغ (+)",
+                qty: "الكمية",
+                action: "العملية",
+                stockIn: "إدخال المخزون (+)",
+                stockOut: "إخراج المخزون (-)",
+                stockTitle: "إيصال مخزون جي بهاي خاتا"
+            },
+            hi: {
+                title: "जी भाई खाता रसीद",
+                details: "विवरण",
+                amount: "राशि",
+                type: "प्रकार",
+                date: "दिनांक",
+                thanks: "धन्यवाद!",
+                give: "उधार दिया (-)",
+                receive: "राशि प्राप्त की (+)",
+                qty: "मात्रा",
+                action: "क्रिया",
+                stockIn: "स्टॉक आया (+)",
+                stockOut: "स्टॉक गया (-)",
+                stockTitle: "जी भाई खाता स्टॉक रसीद"
+            }
+        };
+
         window.onload = function() {
             try {
+                window.currentLang = 'ur'; // Set default language tracker
                 checkUserOnboarding();
                 updateCard();
                 initializeFirebaseListeners();
@@ -809,14 +870,41 @@
             }
         };
 
+        // Unified Auth Screen Handler (Login & Signup Tab Navigation)
+        let activeAuthTab = 'login';
+        function switchAuthTab(tab) {
+            activeAuthTab = tab;
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+            const formLogin = document.getElementById('form-login');
+            const formSignup = document.getElementById('form-signup');
+            const subtitle = document.getElementById('auth-subtitle');
+
+            if (tab === 'login') {
+                tabLogin.className = "py-2 text-xs font-bold rounded-md bg-white text-red-600 shadow-sm transition";
+                tabSignup.className = "py-2 text-xs font-bold rounded-md text-gray-500 hover:text-gray-800 transition";
+                formLogin.classList.remove('hidden');
+                formSignup.classList.add('hidden');
+                subtitle.textContent = "لاگ ان معلومات درج کریں";
+            } else {
+                tabSignup.className = "py-2 text-xs font-bold rounded-md bg-white text-red-600 shadow-sm transition";
+                tabLogin.className = "py-2 text-xs font-bold rounded-md text-gray-500 hover:text-gray-800 transition";
+                formSignup.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+                subtitle.textContent = "نیا اکاؤنٹ بنانے کے لیے فارم پُر کریں";
+            }
+        }
+
         function checkUserOnboarding() {
             const savedBiz = localStorage.getItem('gb_bizName');
             const isLoggedIn = localStorage.getItem('gb_isLoggedIn');
 
             if (!savedBiz) {
-                document.getElementById('onboarding-screen').classList.remove('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                switchAuthTab('signup');
             } else if (savedBiz && isLoggedIn !== 'true') {
-                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                switchAuthTab('login');
             } else {
                 loadProfileToInputs();
             }
@@ -840,7 +928,7 @@
             localStorage.setItem('gb_password', pass);
             localStorage.setItem('gb_isLoggedIn', 'true');
 
-            document.getElementById('onboarding-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.add('hidden');
             loadProfileToInputs();
             updateCard();
         }
@@ -856,7 +944,7 @@
 
             if (enteredName === savedName && enteredPhone === savedPhone && enteredPass === savedPass) {
                 localStorage.setItem('gb_isLoggedIn', 'true');
-                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.add('hidden');
                 loadProfileToInputs();
             } else {
                 alert("نام، موبائل نمبر یا پاسورڈ درست نہیں ہے! دوبارہ کوشش کریں۔");
@@ -867,7 +955,8 @@
         function logoutUser() {
             if (confirm("کیا آپ واقعی لاگ آؤٹ کرنا چاہتے ہیں؟")) {
                 localStorage.setItem('gb_isLoggedIn', 'false');
-                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                switchAuthTab('login');
                 document.getElementById('login-name').value = '';
                 document.getElementById('login-phone').value = '';
                 document.getElementById('login-pass').value = '';
@@ -1271,7 +1360,6 @@
             renderCustomers(filtered);
         }
 
-        // --- OPEN LEDGER PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openLedgerPage(customerKey) {
             selectedCustomerKey = customerKey;
             document.getElementById('ledger-page').classList.remove('hidden');
@@ -1399,14 +1487,47 @@
             }
         }
 
-        // --- DIRECT WHATSAPP INTENT DISPATCHER (FIXED) ---
+        // Helper to format local numbers to WhatsApp acceptable format
+        function formatPhoneForWhatsApp(phone) {
+            if (!phone) return "";
+            let cleaned = phone.replace(/[^0-9]/g, ""); // Keep only numbers
+            
+            if (cleaned.startsWith("00")) {
+                cleaned = cleaned.substring(2);
+            }
+            if (cleaned.startsWith("0") && cleaned.length === 11) {
+                cleaned = "92" + cleaned.substring(1);
+            }
+            if (cleaned.length === 10 && cleaned.startsWith("3")) {
+                cleaned = "92" + cleaned;
+            }
+            return cleaned;
+        }
+
+        // --- DIRECT DYNAMIC WHATSAPP INTENT DISPATCHER (DYNAMIC MULTI-LANGUAGE FIXED) ---
         function shareLedgerWhatsApp(details, amount, type, timestamp) {
             const dObj = new Date(timestamp);
-            const typeText = type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
-            const message = `*جی بھائی کھاتا رسید*\n----------------------------\n*تفصیل:* ${details}\n*رقم:* ${amount} روپے\n*قسم:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
+            const lang = window.currentLang || 'ur';
+            const t = msgTemplates[lang] || msgTemplates['ur'];
+
+            const typeText = type === 'give' ? t.give : t.receive;
+            const currencyLabel = (lang === 'ur' || lang === 'ar' || lang === 'hi') ? 'روپے' : 'Rs.';
+            const message = `*${t.title}*\n----------------------------\n*${t.details}:* ${details}\n*${t.amount}:* ${amount} ${currencyLabel}\n*${t.type}:* ${typeText}\n*${t.date}:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\n${t.thanks}`;
             
-            // Native Android deep link forces WhatsApp app to launch directly without browser middleman
-            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
+            let phoneNum = "";
+            if (selectedCustomerKey) {
+                const customer = allCustomers.find(c => c.key === selectedCustomerKey);
+                if (customer && customer.phone) {
+                    phoneNum = formatPhoneForWhatsApp(customer.phone);
+                }
+            }
+
+            // Direct intent dispatching
+            if (phoneNum) {
+                window.location.href = `whatsapp://send?phone=${phoneNum}&text=${encodeURIComponent(message)}`;
+            } else {
+                window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
+            }
         }
 
         function generateCustomerReport(customerKey, event) {
@@ -1619,7 +1740,6 @@
             renderStock(filtered);
         }
 
-        // --- OPEN STOCK DETAIL PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openStockDetailPage(itemKey) {
             selectedStockItemKey = itemKey;
             document.getElementById('stock-detail-page').classList.remove('hidden');
@@ -1725,6 +1845,18 @@
             });
         }
 
+        // --- DIRECT DYNAMIC WHATSAPP INTENT DISPATCHER FOR STOCK (FIXED) ---
+        function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
+            const dObj = new Date(timestamp);
+            const lang = window.currentLang || 'ur';
+            const t = msgTemplates[lang] || msgTemplates['ur'];
+
+            const typeText = type === 'in' ? t.stockIn : t.stockOut;
+            const message = `*${t.stockTitle}*\n----------------------------\n*${t.details}:* ${details}\n*${t.qty}:* ${qty}\n*${t.action}:* ${typeText}\n*${t.date}:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\n${t.thanks}`;
+            
+            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
+        }
+
         function deleteStockLedgerEntry(entryKey, qty, type) {
             if (confirm("کیا آپ واقعی یہ انٹری اسٹاک ہسٹری سے خارج کرنا چاہتے ہیں؟")) {
                 db.ref(`stock_ledgers/${selectedStockItemKey}/${entryKey}`).remove().then(() => {
@@ -1741,16 +1873,6 @@
                     });
                 });
             }
-        }
-
-        // --- DIRECT WHATSAPP INTENT DISPATCHER FOR STOCK ---
-        function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
-            const dObj = new Date(timestamp);
-            const typeText = type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
-            const message = `*جی بھائی کھاتا اسٹاک رسید*\n----------------------------\n*تفصیل:* ${details}\n*تعداد:* ${qty} عدد\n*عمل:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
-            
-            // Forces native system dispatch to open WhatsApp directly
-            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
         }
 
         function generateStockReport(itemKey, event) {
