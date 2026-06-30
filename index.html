@@ -76,7 +76,7 @@
             }
         }
         
-        #print-area, #print-stock-area, #print-card-only, #print-single-receipt {
+        #print-area, #print-stock-area, #print-card-only, #print-single-receipt, #print-single-stock-receipt {
             display: none;
         }
     </style>
@@ -257,7 +257,7 @@
             </div>
         </section>
 
-        <!-- Tab 4: Tools -->
+        <!-- Tab 4: Tools (اپ ڈیٹ شدہ گائیڈلائنز کے مطابق مزید کا صفحہ) -->
         <section id="tools-tab" class="tab-content hidden no-print">
             <!-- Calculator Card -->
             <div class="bg-white rounded-lg p-3 shadow mb-3">
@@ -286,21 +286,35 @@
                 </div>
             </div>
 
-            <!-- Sub Navigation Buttons -->
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="openProfileModal()" class="bg-red-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-red-700 transition">
-                    <i class="fa-solid fa-user-gear text-lg"></i>
-                    <span>کاروباری معلومات</span>
-                </button>
-                <button onclick="openCardModal()" class="bg-indigo-600 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-indigo-700 transition">
-                    <i class="fa-solid fa-address-card text-lg"></i>
+            <!-- Grid Buttons for Actions -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <!-- Business Card -->
+                <button onclick="openCardModal()" class="bg-blue-600 text-white p-4 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-2 hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-address-card text-2xl"></i>
                     <span>بزنس کارڈ</span>
                 </button>
-                <button onclick="logoutUser()" class="bg-gray-800 text-white p-3 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-1.5 hover:bg-gray-900 transition">
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                <!-- Business Profile -->
+                <button onclick="openProfileModal()" class="bg-red-600 text-white p-4 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-2 hover:bg-red-700 transition">
+                    <i class="fa-solid fa-user-gear text-2xl"></i>
+                    <span>کاروباری معلومات</span>
+                </button>
+                <!-- Logout -->
+                <button onclick="logoutUser()" class="bg-slate-800 text-white p-4 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-2 hover:bg-slate-900 transition">
+                    <i class="fa-solid fa-right-from-bracket text-2xl"></i>
                     <span>لاگ آؤٹ کریں</span>
                 </button>
+                <!-- Privacy Policy -->
+                <button onclick="openPrivacyPolicy()" class="bg-blue-500 text-white p-4 rounded-lg text-xs font-bold shadow flex flex-col items-center justify-center gap-2 hover:bg-blue-600 transition">
+                    <i class="fa-solid fa-shield-halved text-2xl"></i>
+                    <span>پرائیویسی پالیسی</span>
+                </button>
             </div>
+            
+            <!-- Delete Account (Full Width) -->
+            <button onclick="deleteAccount()" class="w-full bg-red-800 text-white p-4 rounded-lg text-xs font-bold shadow flex items-center justify-center gap-2 hover:bg-red-950 transition">
+                <i class="fa-solid fa-trash-can text-lg"></i>
+                <span>اکاؤنٹ ہمیشہ کے لیے ڈیلیٹ کریں</span>
+            </button>
         </section>
 
     </main>
@@ -395,6 +409,21 @@
                 <input type="email" id="edit-biz-email" placeholder="ای میل / جی میل" class="w-full border p-2 rounded text-xs focus:outline-red-600">
                 <input type="password" id="edit-password" placeholder="نیا ایپ لاک پاسورڈ" class="w-full border p-2 rounded text-xs focus:outline-red-600 text-right">
                 <button onclick="saveProfileEdit()" class="w-full bg-red-600 text-white py-2 rounded font-bold text-xs hover:bg-red-700 transition">معلومات اپڈیٹ کریں</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-lg w-full max-w-sm p-5 relative space-y-3">
+            <button onclick="closePrivacyPolicy()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-sm text-gray-700 border-b pb-2"><i class="fa-solid fa-shield-halved text-blue-500"></i> پرائیویسی پالیسی</h3>
+            <div class="text-xs text-gray-600 space-y-2.5 leading-relaxed text-justify max-h-[60vh] overflow-y-auto pr-1">
+                <p><strong>معلومات کی حفاظت:</strong> ہم آپ کے کاروبار اور گاہکوں کا کھاتا ڈیٹا مکمل کلاؤڈ سیکیورٹی کے تحت محفوظ رکھتے ہیں۔</p>
+                <p><strong>ڈیٹا کا استعمال:</strong> آپ کا ڈیٹا کسی بھی دوسری کمپنی یا فریق ثالث (Third-party) کو فروخت یا شیئر نہیں کیا جاتا۔</p>
+                <p><strong>مقامی اسٹوریج:</strong> ایپ کی تیز رفتاری کے لیے آپ کی ڈیوائس پر کچھ بنیادی ڈیٹا اسٹور کیا جاتا ہے، جو اکاؤنٹ ڈیلیٹ کرنے پر مکمل ختم ہو جاتا ہے۔</p>
             </div>
         </div>
     </div>
@@ -560,6 +589,62 @@
             <div class="text-center">
                 <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
                 <p class="text-[10px] text-gray-500 font-bold">دستخط پروپرائٹر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Single Stock Entry Receipt Printing Container (NEW FEATURE) -->
+    <div id="print-single-stock-receipt" class="p-6 bg-white text-black leading-relaxed">
+        <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
+            <h1 id="pssr-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
+            <p class="text-sm text-gray-600 mt-1 font-semibold">اسٹاک ٹرانزیکشن رسید (ووچر)</p>
+            
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
+                    <span id="pssr-owner-name" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">رابطہ نمبر</span>
+                    <span id="pssr-biz-phone" class="font-semibold text-gray-800 text-sm"></span>
+                </div>
+                <div>
+                    <span class="text-gray-500 font-bold block mb-1">جی میل</span>
+                    <span id="pssr-biz-email" class="font-semibold text-gray-800 text-sm break-all"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Summary -->
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
+            <p class="mb-1"><strong>پروڈکٹ کا نام:</strong> <span id="pssr-item-name" class="font-bold text-gray-800 text-base"></span></p>
+            <p><strong>قیمت فی آئٹم:</strong> <span id="pssr-item-price" class="font-semibold text-gray-700"></span></p>
+        </div>
+
+        <!-- Single Entry Details Block -->
+        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
+            <div class="bg-gray-100 p-2.5 font-bold text-gray-700 border-b border-gray-300 grid grid-cols-3">
+                <div>تاریخ اور وقت</div>
+                <div>تفصیل / وجہ</div>
+                <div>حیثیت</div>
+            </div>
+            <div class="p-3 grid grid-cols-3 items-center">
+                <div id="pssr-date" class="text-gray-600"></div>
+                <div id="pssr-details" class="font-semibold text-gray-800"></div>
+                <div id="pssr-type"></div>
+            </div>
+            <div class="bg-green-50 p-3 border-t border-gray-300 flex justify-between items-center text-sm font-bold">
+                <span class="text-green-900">ٹوٹل مقدار:</span>
+                <span id="pssr-qty" class="text-lg text-green-700"></span>
+            </div>
+        </div>
+
+        <!-- Signature/Footer -->
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+            <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
+            <div class="text-center">
+                <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
+                <p class="text-[10px] text-gray-500 font-bold">دستخط پروپرائٹر / انچارج</p>
             </div>
         </div>
     </div>
@@ -815,6 +900,7 @@
                 closeStockDetailPage();
                 closeProfileModal();
                 closeCardModal();
+                closePrivacyPolicy();
 
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
                 const targetTab = document.getElementById(tabId + '-tab');
@@ -849,6 +935,25 @@
         }
         function closeCardModal() {
             document.getElementById('card-modal').classList.add('hidden');
+        }
+
+        // Privacy Policy Modal Controls
+        function openPrivacyPolicy() {
+            document.getElementById('privacy-modal').classList.remove('hidden');
+        }
+        function closePrivacyPolicy() {
+            document.getElementById('privacy-modal').classList.add('hidden');
+        }
+
+        // Permanent Delete Local Storage Account Option
+        function deleteAccount() {
+            if (confirm("کیا آپ واقعی اپنا اکاؤنٹ اور تمام مقامی ڈیٹا ہمیشہ کے لیے ڈیلیٹ کرنا چاہتے ہیں؟ اسے واپس نہیں لایا جا سکتا۔")) {
+                if (confirm("کیا آپ کو یقین ہے؟ آپ کا تمام مقامی ڈیٹا ڈیوائس سے صاف کر دیا جائے گا۔")) {
+                    localStorage.clear();
+                    alert("آپ کا اکاؤنٹ کامیابی سے لوکل ڈیوائس سے حذف کر دیا گیا ہے۔");
+                    location.reload();
+                }
+            }
         }
 
         const cardStyles = {
@@ -886,42 +991,49 @@
             document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
         }
 
-        // --- WebView Compatibility Printing Helper ---
-        // This function dynamically hides other elements and exposes only target container to print manager
+        // --- WebView Stable Compatibility Printing Helper ---
         function executeAppPrint(elementId) {
-            const bodyChildren = Array.from(document.body.children);
-            const savedDisplays = [];
+            const target = document.getElementById(elementId);
+            if (!target) return;
 
-            // Programmatically hide every main element except the one we want to print
-            bodyChildren.forEach(child => {
-                if (child.id !== elementId && child.tagName !== 'SCRIPT') {
-                    savedDisplays.push({ element: child, display: child.style.display });
-                    child.style.setProperty('display', 'none', 'important');
+            // Hide printable wrappers from DOM during print initiation to prevent interference
+            document.querySelectorAll('#print-area, #print-stock-area, #print-card-only, #print-single-receipt, #print-single-stock-receipt').forEach(el => {
+                if (el.id !== elementId) {
+                    el.style.setProperty('display', 'none', 'important');
+                    el.classList.remove('print-show');
                 }
             });
 
-            // Isolate and show print target
-            const target = document.getElementById(elementId);
-            const originalTargetDisplay = target.style.display;
             target.style.setProperty('display', 'block', 'important');
             target.classList.add('print-show');
 
-            // Small delay to allow the rendering engine to paint the viewport cleanly
-            setTimeout(() => {
-                window.print();
+            // Temporarily adjust layout rules in WebView framework to prevent 0px cutoff height crash
+            const body = document.body;
+            const originalClasses = body.className;
+            body.classList.remove('h-screen', 'overflow-hidden', 'flex', 'flex-col');
+            body.style.overflow = 'visible';
+            body.style.height = 'auto';
 
-                // Restore page state after spooler initiates
+            setTimeout(() => {
+                try {
+                    if (window.AndroidPrint && typeof window.AndroidPrint.printPage === 'function') {
+                        window.AndroidPrint.printPage();
+                    } else {
+                        window.print();
+                    }
+                } catch (e) {
+                    console.error("System printing driver dispatch failure:", e);
+                }
+
+                // Restore page view layout state after spooler accepts compiling elements
                 setTimeout(() => {
-                    bodyChildren.forEach(child => {
-                        const saved = savedDisplays.find(s => s.element === child);
-                        if (saved) {
-                            child.style.display = saved.display;
-                        }
-                    });
-                    target.style.display = originalTargetDisplay;
+                    body.className = originalClasses;
+                    body.style.overflow = '';
+                    body.style.height = '';
+                    target.style.setProperty('display', 'none', 'important');
                     target.classList.remove('print-show');
-                }, 1000);
-            }, 300);
+                }, 3000); 
+            }, 400);
         }
 
         function printBusinessCard() {
@@ -934,6 +1046,7 @@
             document.getElementById('print-area').classList.remove('print-show');
             document.getElementById('print-stock-area').classList.remove('print-show');
             document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.add('print-show');
 
             executeAppPrint('print-card-only');
@@ -1287,6 +1400,7 @@
             document.getElementById('print-area').classList.add('print-show');
             document.getElementById('print-stock-area').classList.remove('print-show');
             document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.remove('print-show');
 
             db.ref(`ledgers/${customerKey}`).once('value', snapshot => {
@@ -1354,10 +1468,50 @@
 
             document.getElementById('print-area').classList.remove('print-show');
             document.getElementById('print-stock-area').classList.remove('print-show');
+            document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.remove('print-show');
             document.getElementById('print-single-receipt').classList.add('print-show');
 
             executeAppPrint('print-single-receipt');
+        }
+
+        // --- NEW FEATURE: Generate Single Stock Entry PDF Receipt (ووچر رسید) ---
+        function generateSingleStockReceipt(itemKey, details, qty, type, timestamp, event) {
+            if (event) event.stopPropagation();
+
+            const item = allStockItems.find(s => s.key === itemKey);
+            if (!item) return;
+
+            const bizName = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
+            const ownerName = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
+            const bizPhone = localStorage.getItem('gb_bizPhone') || 'نمبر';
+            const bizEmail = localStorage.getItem('gb_bizEmail') || 'جی میل';
+
+            document.getElementById('pssr-biz-name').textContent = bizName;
+            document.getElementById('pssr-owner-name').textContent = ownerName;
+            document.getElementById('pssr-biz-phone').textContent = bizPhone;
+            document.getElementById('pssr-biz-email').textContent = bizEmail;
+
+            document.getElementById('pssr-item-name').textContent = item.name;
+            document.getElementById('pssr-item-price').textContent = `${item.price} روپے`;
+
+            const dObj = new Date(timestamp);
+            document.getElementById('pssr-date').textContent = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+            document.getElementById('pssr-details').textContent = details;
+
+            const typeText = type === 'in' ? 'اسٹاک داخل (+)' : 'اسٹاک خارج (-)';
+            const typeClass = type === 'in' ? 'text-green-600' : 'text-red-600';
+            document.getElementById('pssr-type').textContent = typeText;
+            document.getElementById('pssr-type').className = `font-bold ${typeClass}`;
+            document.getElementById('pssr-qty').textContent = `${qty} عدد`;
+
+            document.getElementById('print-area').classList.remove('print-show');
+            document.getElementById('print-stock-area').classList.remove('print-show');
+            document.getElementById('print-card-only').classList.remove('print-show');
+            document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-single-stock-receipt').classList.add('print-show');
+
+            executeAppPrint('print-single-stock-receipt');
         }
 
         function addStockItem() {
@@ -1477,6 +1631,7 @@
 
                     const typeText = val.type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
                     const typeColor = val.type === 'in' ? 'text-green-600' : 'text-red-600';
+                    const escapedDetails = val.details.replace(/'/g, "\\'");
 
                     list.innerHTML += `
                         <div class="py-2 flex flex-col gap-1 text-xs border-b border-gray-100">
@@ -1497,7 +1652,8 @@
                                 <button onclick="shareStockLedgerWhatsApp('${val.details}', ${val.qty}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
                                     <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
                                 </button>
-                                <button onclick="generateStockReport('${selectedStockItemKey}', event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
+                                <!-- UPDATED BUTTON: Prints single stock entry only (سنگل پٹی کی رسید) -->
+                                <button onclick="generateSingleStockReceipt('${selectedStockItemKey}', '${escapedDetails}', ${val.qty}, '${val.type}', ${val.timestamp}, event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
                                     <i class="fa-solid fa-print"></i> پی ڈی ایف
                                 </button>
                             </div>
@@ -1584,6 +1740,7 @@
             document.getElementById('print-area').classList.remove('print-show');
             document.getElementById('print-stock-area').classList.add('print-show');
             document.getElementById('print-single-receipt').classList.remove('print-show');
+            document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.remove('print-show');
 
             db.ref(`stock_ledgers/${itemKey}`).once('value', snapshot => {
@@ -1632,4 +1789,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
