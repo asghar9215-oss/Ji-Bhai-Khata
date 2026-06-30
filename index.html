@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>   
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -83,8 +83,18 @@
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
 
+    <!-- PDF Generating Loader Modal (NEW POPUP) -->
+    <div id="pdf-loader-modal" class="fixed inset-0 bg-black/80 z-[99] hidden flex flex-col items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-xl p-6 flex flex-col items-center space-y-4 shadow-2xl max-w-xs text-center border-t-4 border-red-600">
+            <!-- Spinner -->
+            <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            <h4 class="font-bold text-sm text-gray-800">براہ کرم انتظار کریں...</h4>
+            <p class="text-xs text-gray-500 leading-relaxed">پی ڈی ایف فائل تیار کی جا رہی ہے۔ پرنٹ ونڈو کھلنے پر فائل شیئر یا محفوظ کریں۔</p>
+        </div>
+    </div>
+
     <!-- 1. Registration/Onboarding Screen -->
-    <div id="onboarding-screen" class="fixed inset-0 bg-white z-50 p-6 flex flex-col justify-center items-center hidden no-print">
+    <div id="onboarding-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
         <div class="w-full max-w-sm space-y-3">
             <div class="text-center mb-2">
                 <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
@@ -109,7 +119,7 @@
     </div>
 
     <!-- 2. Secure Login Screen -->
-    <div id="login-screen" class="fixed inset-0 bg-white z-50 p-6 flex flex-col justify-center items-center hidden no-print">
+    <div id="login-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
         <div class="w-full max-w-sm space-y-3">
             <div class="text-center mb-2">
                 <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
@@ -319,8 +329,8 @@
 
     </main>
 
-    <!-- Detailed Customer Ledger Page -->
-    <div id="ledger-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+    <!-- Detailed Customer Ledger Page (FIXED: z-index increased to 50 to cover main header) -->
+    <div id="ledger-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
         <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
             <button onclick="closeLedgerPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
                 <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
@@ -357,8 +367,8 @@
         </div>
     </div>
 
-    <!-- Detailed Stock Item Page -->
-    <div id="stock-detail-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-30 hidden flex flex-col no-print">
+    <!-- Detailed Stock Item Page (FIXED: z-index increased to 50 to cover main header) -->
+    <div id="stock-detail-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
         <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
             <button onclick="closeStockDetailPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
                 <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
@@ -396,7 +406,7 @@
     </div>
 
     <!-- Edit Business Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3">
             <button onclick="closeProfileModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -414,7 +424,7 @@
     </div>
 
     <!-- Privacy Policy Modal -->
-    <div id="privacy-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+    <div id="privacy-modal" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-lg w-full max-w-sm p-5 relative space-y-3">
             <button onclick="closePrivacyPolicy()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -429,7 +439,7 @@
     </div>
 
     <!-- Business Card Maker Modal Popup -->
-    <div id="card-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 no-print">
+    <div id="card-modal" class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 no-print">
         <div class="bg-white rounded-lg w-full max-w-sm p-4 relative space-y-3 overflow-y-auto max-h-[90vh]">
             <button onclick="closeCardModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -989,12 +999,16 @@
             document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
         }
 
-        // --- WebView Stable Compatibility Printing Helper (FULLY OPTIMIZED WITH DUAL TIMEOUT & FOCUS DETECTOR) ---
+        // --- WebView Stable Compatibility Printing Helper (OPTIMIZED WITH VISUAL POPUP LOADER & 2.5S COMPILE WINDOW) ---
         function executeAppPrint(elementId) {
             const target = document.getElementById(elementId);
             if (!target) return;
 
-            // Reset visibility of other printable components first
+            // Show beautiful loading popup
+            const loader = document.getElementById('pdf-loader-modal');
+            if (loader) loader.classList.remove('hidden');
+
+            // Hide other printable wrappers
             document.querySelectorAll('#print-area, #print-stock-area, #print-card-only, #print-single-receipt, #print-single-stock-receipt').forEach(el => {
                 if (el.id !== elementId) {
                     el.style.setProperty('display', 'none', 'important');
@@ -1002,23 +1016,24 @@
                 }
             });
 
-            // Isolate and show target container
             target.style.setProperty('display', 'block', 'important');
             target.classList.add('print-show');
 
-            // Temporarily adjust layout rules in WebView framework to prevent layout changes during compilation
+            // Adjust body parameters for stable WebView rendering
             const body = document.body;
             const originalClasses = body.className;
             body.classList.remove('h-screen', 'overflow-hidden', 'flex', 'flex-col');
             body.style.overflow = 'visible';
             body.style.height = 'auto';
 
-            // Safe restoration callback
             let isRestored = false;
             const restoreLayout = () => {
                 if (isRestored) return;
                 isRestored = true;
                 
+                // Hide loading popup
+                if (loader) loader.classList.add('hidden');
+
                 body.className = originalClasses;
                 body.style.overflow = '';
                 body.style.height = '';
@@ -1028,13 +1043,13 @@
                 window.removeEventListener('focus', restoreLayout);
             };
 
-            // Bind restoration to focus event: trigger only when user closes the native print dialog and returns to the app
+            // Restore layout when the user saves/closes the print manager and returns to WebView
             window.addEventListener('focus', restoreLayout);
 
-            // Safer, extended fallback of 10 seconds to ensure slow devices compile the PDF document completely
-            setTimeout(restoreLayout, 10000);
+            // Safer 15 seconds automatic fallback timeout
+            setTimeout(restoreLayout, 15000);
 
-            // Generous delay of 800ms before showing the print dialog to allow the engine to fully paint the layout
+            // Generous 2.5 seconds (2500ms) compile window allowing WebView to render perfectly before spooler capture
             setTimeout(() => {
                 try {
                     if (window.AndroidPrint && typeof window.AndroidPrint.printPage === 'function') {
@@ -1043,10 +1058,10 @@
                         window.print();
                     }
                 } catch (e) {
-                    console.error("System printing driver dispatch failure:", e);
+                    console.error("Printing failure:", e);
                     restoreLayout();
                 }
-            }, 800);
+            }, 2500);
         }
 
         function printBusinessCard() {
@@ -1256,6 +1271,7 @@
             renderCustomers(filtered);
         }
 
+        // --- OPEN LEDGER PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openLedgerPage(customerKey) {
             selectedCustomerKey = customerKey;
             document.getElementById('ledger-page').classList.remove('hidden');
@@ -1383,11 +1399,14 @@
             }
         }
 
+        // --- DIRECT WHATSAPP INTENT DISPATCHER (FIXED) ---
         function shareLedgerWhatsApp(details, amount, type, timestamp) {
             const dObj = new Date(timestamp);
             const typeText = type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
             const message = `*جی بھائی کھاتا رسید*\n----------------------------\n*تفصیل:* ${details}\n*رقم:* ${amount} روپے\n*قسم:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            
+            // Native Android deep link forces WhatsApp app to launch directly without browser middleman
+            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
         }
 
         function generateCustomerReport(customerKey, event) {
@@ -1600,6 +1619,7 @@
             renderStock(filtered);
         }
 
+        // --- OPEN STOCK DETAIL PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openStockDetailPage(itemKey) {
             selectedStockItemKey = itemKey;
             document.getElementById('stock-detail-page').classList.remove('hidden');
@@ -1723,11 +1743,14 @@
             }
         }
 
+        // --- DIRECT WHATSAPP INTENT DISPATCHER FOR STOCK ---
         function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
             const dObj = new Date(timestamp);
             const typeText = type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
             const message = `*جی بھائی کھاتا اسٹاک رسید*\n----------------------------\n*تفصیل:* ${details}\n*تعداد:* ${qty} عدد\n*عمل:* ${typeText}\n*تاریخ:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\nشکریہ!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            
+            // Forces native system dispatch to open WhatsApp directly
+            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
         }
 
         function generateStockReport(itemKey, event) {
