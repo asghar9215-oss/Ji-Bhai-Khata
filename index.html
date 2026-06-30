@@ -257,7 +257,7 @@
             </div>
         </section>
 
-        <!-- Tab 4: Tools (اپ ڈیٹ شدہ گائیڈلائنز کے مطابق مزید کا صفحہ) -->
+        <!-- Tab 4: Tools -->
         <section id="tools-tab" class="tab-content hidden no-print">
             <!-- Calculator Card -->
             <div class="bg-white rounded-lg p-3 shadow mb-3">
@@ -593,7 +593,7 @@
         </div>
     </div>
 
-    <!-- Hidden Single Stock Entry Receipt Printing Container (NEW FEATURE) -->
+    <!-- Hidden Single Stock Entry Receipt Printing Container -->
     <div id="print-single-stock-receipt" class="p-6 bg-white text-black leading-relaxed">
         <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
             <h1 id="pssr-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
@@ -937,7 +937,6 @@
             document.getElementById('card-modal').classList.add('hidden');
         }
 
-        // Privacy Policy Modal Controls
         function openPrivacyPolicy() {
             document.getElementById('privacy-modal').classList.remove('hidden');
         }
@@ -945,7 +944,6 @@
             document.getElementById('privacy-modal').classList.add('hidden');
         }
 
-        // Permanent Delete Local Storage Account Option
         function deleteAccount() {
             if (confirm("کیا آپ واقعی اپنا اکاؤنٹ اور تمام مقامی ڈیٹا ہمیشہ کے لیے ڈیلیٹ کرنا چاہتے ہیں؟ اسے واپس نہیں لایا جا سکتا۔")) {
                 if (confirm("کیا آپ کو یقین ہے؟ آپ کا تمام مقامی ڈیٹا ڈیوائس سے صاف کر دیا جائے گا۔")) {
@@ -991,12 +989,12 @@
             document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
         }
 
-        // --- WebView Stable Compatibility Printing Helper ---
+        // --- WebView Stable Compatibility Printing Helper (FULLY OPTIMIZED WITH DUAL TIMEOUT & FOCUS DETECTOR) ---
         function executeAppPrint(elementId) {
             const target = document.getElementById(elementId);
             if (!target) return;
 
-            // Hide printable wrappers from DOM during print initiation to prevent interference
+            // Reset visibility of other printable components first
             document.querySelectorAll('#print-area, #print-stock-area, #print-card-only, #print-single-receipt, #print-single-stock-receipt').forEach(el => {
                 if (el.id !== elementId) {
                     el.style.setProperty('display', 'none', 'important');
@@ -1004,16 +1002,39 @@
                 }
             });
 
+            // Isolate and show target container
             target.style.setProperty('display', 'block', 'important');
             target.classList.add('print-show');
 
-            // Temporarily adjust layout rules in WebView framework to prevent 0px cutoff height crash
+            // Temporarily adjust layout rules in WebView framework to prevent layout changes during compilation
             const body = document.body;
             const originalClasses = body.className;
             body.classList.remove('h-screen', 'overflow-hidden', 'flex', 'flex-col');
             body.style.overflow = 'visible';
             body.style.height = 'auto';
 
+            // Safe restoration callback
+            let isRestored = false;
+            const restoreLayout = () => {
+                if (isRestored) return;
+                isRestored = true;
+                
+                body.className = originalClasses;
+                body.style.overflow = '';
+                body.style.height = '';
+                target.style.setProperty('display', 'none', 'important');
+                target.classList.remove('print-show');
+                
+                window.removeEventListener('focus', restoreLayout);
+            };
+
+            // Bind restoration to focus event: trigger only when user closes the native print dialog and returns to the app
+            window.addEventListener('focus', restoreLayout);
+
+            // Safer, extended fallback of 10 seconds to ensure slow devices compile the PDF document completely
+            setTimeout(restoreLayout, 10000);
+
+            // Generous delay of 800ms before showing the print dialog to allow the engine to fully paint the layout
             setTimeout(() => {
                 try {
                     if (window.AndroidPrint && typeof window.AndroidPrint.printPage === 'function') {
@@ -1023,17 +1044,9 @@
                     }
                 } catch (e) {
                     console.error("System printing driver dispatch failure:", e);
+                    restoreLayout();
                 }
-
-                // Restore page view layout state after spooler accepts compiling elements
-                setTimeout(() => {
-                    body.className = originalClasses;
-                    body.style.overflow = '';
-                    body.style.height = '';
-                    target.style.setProperty('display', 'none', 'important');
-                    target.classList.remove('print-show');
-                }, 3000); 
-            }, 400);
+            }, 800);
         }
 
         function printBusinessCard() {
@@ -1475,7 +1488,6 @@
             executeAppPrint('print-single-receipt');
         }
 
-        // --- NEW FEATURE: Generate Single Stock Entry PDF Receipt (ووچر رسید) ---
         function generateSingleStockReceipt(itemKey, details, qty, type, timestamp, event) {
             if (event) event.stopPropagation();
 
@@ -1652,7 +1664,6 @@
                                 <button onclick="shareStockLedgerWhatsApp('${val.details}', ${val.qty}, '${val.type}', ${val.timestamp})" class="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-green-700">
                                     <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
                                 </button>
-                                <!-- UPDATED BUTTON: Prints single stock entry only (سنگل پٹی کی رسید) -->
                                 <button onclick="generateSingleStockReceipt('${selectedStockItemKey}', '${escapedDetails}', ${val.qty}, '${val.type}', ${val.timestamp}, event)" class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] flex items-center gap-0.5 hover:bg-blue-700">
                                     <i class="fa-solid fa-print"></i> پی ڈی ایف
                                 </button>
