@@ -44,7 +44,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل بنانا (بٹن چھپنے کا مسئلہ حل کرنے کے لیے لائٹ تھیم استعمال کیا گیا ہے)
+        # اینڈرائیڈ مینی فیسٹ فائل (اوپر کا وائٹ ٹائٹل بار ختم کرنے کے لیے NoActionBar سیٹ کیا ہے)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -59,7 +59,7 @@ jobs:
                 android:allowBackup="true"
                 android:label="Ji Bhai Khata"
                 android:supportsRtl="true"
-                android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+                android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
