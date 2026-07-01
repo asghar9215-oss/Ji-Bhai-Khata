@@ -70,7 +70,7 @@ jobs:
         </manifest>
         EOF
 
-        # MainActivity.java بنانا (موبائل سکرین سائز آٹو فٹ سیٹنگز کے ساتھ)
+        # MainActivity.java بنانا (موبائل سکرین سائز فکسڈ سیٹنگز کے ساتھ)
         cat <<EOF > app/src/main/java/com/afuma/jibhaikhata/MainActivity.java
         package com.afuma.jibhaikhata;
 
@@ -105,9 +105,9 @@ jobs:
                 webSettings.setAllowContentAccess(true);
                 webSettings.setDatabaseEnabled(true);
                 
-                // موبائل اسکرین سائز فٹ کرنے کی لازمی سیٹنگز (اس سے زوم ٹھیک ہو جائے گا)
-                webSettings.setUseWideViewPort(true);
-                webSettings.setLoadWithOverviewMode(true);
+                // موبائل اسکرین سائز فٹ کرنے کی درست سیٹنگز (تاکہ زوم آؤٹ نہ ہو اور بٹن نیچے فکس رہیں)
+                webSettings.setUseWideViewPort(false);
+                webSettings.setLoadWithOverviewMode(false);
                 
                 myWebView.setWebChromeClient(new WebChromeClient());
 
