@@ -1,24 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>جی بھائی کھاتا</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link class="no-print" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
         html, body {
+            width: 100% !important;
             height: 100% !important;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            -webkit-text-size-adjust: 100% !important; /* موبائل کا ڈیفالٹ فانٹ زوم بند کرنے کے لیے */
+            text-size-adjust: 100% !important;
         }
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -88,7 +90,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 h-full overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
+<body class="bg-gray-100 h-full w-full overflow-hidden flex flex-col relative">
 
     <!-- PDF Generating Loader Modal -->
     <div id="pdf-loader-modal" class="fixed inset-0 bg-black/80 z-[99] hidden flex flex-col items-center justify-center p-6 no-print">
@@ -217,7 +219,7 @@
                 <h3 class="font-bold mb-2 text-xs text-gray-700">نیا گاہک شامل کریں</h3>
                 <div class="space-y-1.5">
                     <input type="text" id="cust-name" placeholder="گاہک کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
-                    <input type="text" id="cust-phone" placeholder="مائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="text" id="cust-phone" placeholder="موبائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
                     <button onclick="addCustomer()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">محفوظ کریں</button>
                 </div>
             </div>
@@ -860,7 +862,7 @@
                 qty: "मात्रा",
                 action: "क्रिया",
                 stockIn: "स्टॉक आया (+)",
-                stockOut: "स्टॉक गया (-)",
+                stockOut: "स्टॉक گیا (-)",
                 stockTitle: "जी भाई खाता स्टॉक रसीद"
             }
         };
@@ -1311,6 +1313,7 @@
             });
         }
 
+        // --- CASCADING DELETE CUSTOMER (DELETE LEDGERS ENTRIES TOO) ---
         function deleteCustomer(key, event) {
             event.stopPropagation();
             if (confirm("کیا آپ اس گاہک کا پورا کھاتا اور تمام ہسٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
@@ -1694,6 +1697,7 @@
             });
         }
 
+        // --- CASCADE DELETE STOCK ITEM (CASCADE STOCKS RESTORATION FIX) ---
         function deleteStockItem(key, event) {
             event.stopPropagation();
             if (confirm("کیا آپ واقعی یہ پروڈکٹ اسٹاک سے مستقل طور پر حذف کرنا چاہتے ہیں؟")) {
