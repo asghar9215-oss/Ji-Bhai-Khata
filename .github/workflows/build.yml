@@ -44,7 +44,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل (اوپر کا وائٹ ٹائٹل بار ختم کرنے کے لیے NoActionBar سیٹ کیا ہے)
+        # اینڈرائیڈ مینی فیسٹ فائل بنانا (کال، لوکیشن اور الارم کی پرمیشنز کے ساتھ)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -59,7 +59,7 @@ jobs:
                 android:allowBackup="true"
                 android:label="Ji Bhai Khata"
                 android:supportsRtl="true"
-                android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
@@ -70,7 +70,7 @@ jobs:
         </manifest>
         EOF
 
-        # سپر MainActivity.java جو تمام 5 فیچرز اور فکسڈ پرنٹ ہسٹری کو سنبھالے گی
+        # سپر MainActivity.java جو تمام 5 فیچرز (PDF، واٹس ایپ، کال، لوکیشن، الارم) کو ہینڈل کرے گی
         cat <<EOF > app/src/main/java/com/stylelink/jibhaikhata/MainActivity.java
         package com.stylelink.jibhaikhata;
 
@@ -108,6 +108,14 @@ jobs:
                 
                 // الرٹس اور پاپ اپس کے لیے
                 myWebView.setWebChromeClient(new WebChromeClient());
+                
+                // پی ڈی ایف (window.print()) کو اینڈرائیڈ پرنٹ مینیجر سے لنک کرنا
+                myWebView.setWebChromeClient(new WebChromeClient() {
+                    @Override
+                    public void onProgressChanged(WebView view, int newProgress) {
+                        super.onProgressChanged(view, newProgress);
+                    }
+                });
 
                 // موبائل کے نیٹیو فیچرز (WhatsApp, Call, Location, Alarm) کو ایکٹو کرنا
                 myWebView.setWebViewClient(new WebViewClient() {
@@ -147,7 +155,7 @@ jobs:
                     }
                 });
 
-                // جاوا اسکرپٹ کے ذریعے window.print() کو اینڈرائیڈ میں چلانے کا طریقہ
+                // جاوا اسکرپٹ کے ذریعے window.print() کو اینڈرائیڈ میں چلانے کا جگاڑ
                 myWebView.addJavascriptInterface(new Object() {
                     @android.webkit.JavascriptInterface
                     public void printPage() {
@@ -177,15 +185,13 @@ jobs:
                 }
             }
 
-            // لائیو ڈیٹا پرنٹ کرنے والا انجن (صفحہ سفید نہیں آئے گا)
+            // اینڈرائیڈ کا اصل پی ڈی ایف / پرنٹ مینیجر انجن
             private void createWebPrintJob(WebView webView) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                    PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
-                    String jobName = "Ji_Bhai_Khata_Document";
-                    PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
-                    if (printManager != null) {
-                        printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
-                    }
+                PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
+                String jobName = "Ji_Bhai_Khata_Document";
+                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+                if (printManager != null) {
+                    printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
                 }
             }
 
@@ -200,16 +206,16 @@ jobs:
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل تیار کرنا (TARGET SDK 35)
+        # ایپ کی اپنی build.gradle فائل تیار کرنا
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
             namespace 'com.stylelink.jibhaikhata'
-            compileSdk 35
+            compileSdk 34
             defaultConfig {
                 applicationId "com.stylelink.jibhaikhata"
                 minSdk 24
-                targetSdk 35
+                targetSdk 34
                 versionCode 1
                 versionName "1.0.0"
             }
