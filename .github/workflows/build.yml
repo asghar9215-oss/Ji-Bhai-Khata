@@ -44,7 +44,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل بنانا (کال، لوکیشن اور الارم کی پرمیشنز کے ساتھ)
+        # اینڈرائیڈ مینی فیسٹ فائل بنانا (بٹن چھپنے کا مسئلہ حل کرنے کے لیے لائٹ تھیم استعمال کیا گیا ہے)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -59,7 +59,7 @@ jobs:
                 android:allowBackup="true"
                 android:label="Ji Bhai Khata"
                 android:supportsRtl="true"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
@@ -200,7 +200,7 @@ jobs:
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل تیار کرنا (TARGET API 35 سیٹ کر دیا گیا ہے)
+        # ایپ کی اپنی build.gradle فائل تیار کرنا (TARGET SDK 35)
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
@@ -253,4 +253,3 @@ jobs:
       with:
         name: Ji-Bhai-Khata-Testing-APK
         path: app/build/outputs/apk/release/app-release.apk
-
