@@ -44,7 +44,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل (اوپر کا وائٹ بار ختم کرنے اور نیچے کے بٹن فٹ کرنے کے لیے DeviceDefault.NoActionBar سیٹ کیا ہے)
+        # اینڈرائیڈ مینی فیسٹ فائل
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -70,7 +70,7 @@ jobs:
         </manifest>
         EOF
 
-        # سپر MainActivity.java جو تمام 5 فیچرز (PDF، واٹس ایپ، کال، لوکیشن، الارم) کو ہینڈل کرے گی
+        # اپڈیٹڈ MainActivity.java جو API 35 پر بھی اسکرین کو پرانے طریقے (بٹنوں سے اوپر) پر فٹ رکھے گی
         cat <<EOF > app/src/main/java/com/stylelink/jibhaikhata/MainActivity.java
         package com.stylelink.jibhaikhata;
 
@@ -83,6 +83,7 @@ jobs:
         import android.print.PrintDocumentAdapter;
         import android.print.PrintManager;
         import android.provider.AlarmClock;
+        import android.view.View;
         import android.webkit.WebChromeClient;
         import android.webkit.WebSettings;
         import android.webkit.WebView;
@@ -105,8 +106,14 @@ jobs:
                 webSettings.setAllowContentAccess(true);
                 webSettings.setDatabaseEnabled(true);
                 
+                // الرٹس اور پاپ اپس کے لیے
                 myWebView.setWebChromeClient(new WebChromeClient());
-                
+
+                // API 35 کے نئے سسٹم کو روکنے کے لیے اسکرین فٹنگ لاک کرنا
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    myWebView.setFitsSystemWindows(true);
+                }
+
                 myWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -185,7 +192,7 @@ jobs:
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل تیار کرنا (Target SDK 35 فکسڈ)
+        # ایپ کی اپنی build.gradle فائل تیار کرنا (Target SDK 35 لازمی ہے پلے اسٹور کے لیے)
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
