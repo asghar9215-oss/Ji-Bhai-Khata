@@ -44,7 +44,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل بنانا (کال، لوکیشن اور الارم کی پرمیشنز کے ساتھ)
+        # اینڈرائیڈ مینی فیسٹ فائل (اوپر کا وائٹ بار ختم کرنے اور نیچے کے بٹن فٹ کرنے کے لیے DeviceDefault.NoActionBar سیٹ کیا ہے)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -59,7 +59,7 @@ jobs:
                 android:allowBackup="true"
                 android:label="Ji Bhai Khata"
                 android:supportsRtl="true"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
@@ -99,46 +99,28 @@ jobs:
                 myWebView = new WebView(this);
                 WebSettings webSettings = myWebView.getSettings();
                 
-                // جاوا اسکرپٹ اور لوکل اسٹوریج کو مکمل اجازت دینا
                 webSettings.setJavaScriptEnabled(true);
                 webSettings.setDomStorageEnabled(true);
                 webSettings.setAllowFileAccess(true);
                 webSettings.setAllowContentAccess(true);
                 webSettings.setDatabaseEnabled(true);
                 
-                // الرٹس اور پاپ اپس کے لیے
                 myWebView.setWebChromeClient(new WebChromeClient());
                 
-                // پی ڈی ایف (window.print()) کو اینڈرائیڈ پرنٹ مینیجر سے لنک کرنا
-                myWebView.setWebChromeClient(new WebChromeClient() {
-                    @Override
-                    public void onProgressChanged(WebView view, int newProgress) {
-                        super.onProgressChanged(view, newProgress);
-                    }
-                });
-
-                // موبائل کے نیٹیو فیچرز (WhatsApp, Call, Location, Alarm) کو ایکٹو کرنا
                 myWebView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
                         if (url == null) return false;
 
-                        // 1. واٹس ایپ ہینڈلر
                         if (url.startsWith("whatsapp:") || url.contains("api.whatsapp.com") || url.contains("wa.me")) {
                             return launchIntent(url, "WhatsApp is not installed");
                         }
-                        
-                        // 2. فون کال ہینڈلر (tel:)
                         if (url.startsWith("tel:")) {
                             return launchIntent(url, "Cannot open dialer");
                         }
-
-                        // 3. گوگل میپس / لوکیشن ہینڈلر (geo: یا maps)
                         if (url.startsWith("geo:") || url.contains("maps.google.com")) {
                             return launchIntent(url, "Maps app not found");
                         }
-
-                        // 4. الارم ہینڈلر (alarm:)
                         if (url.startsWith("alarm:")) {
                             try {
                                 Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
@@ -150,12 +132,10 @@ jobs:
                                 return true;
                             }
                         }
-
                         return false;
                     }
                 });
 
-                // جاوا اسکرپٹ کے ذریعے window.print() کو اینڈرائیڈ میں چلانے کا جگاڑ
                 myWebView.addJavascriptInterface(new Object() {
                     @android.webkit.JavascriptInterface
                     public void printPage() {
@@ -168,12 +148,10 @@ jobs:
                     }
                 }, "AndroidPrint");
 
-                // انڈیکس فائل لوڈ کرنا
                 myWebView.loadUrl("file:///android_asset/index.html");
                 setContentView(myWebView);
             }
 
-            // موبائل ایپس اوپن کرنے کا مشترکہ فنکشن
             private boolean launchIntent(String url, String errorMessage) {
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -185,13 +163,14 @@ jobs:
                 }
             }
 
-            // اینڈرائیڈ کا اصل پی ڈی ایف / پرنٹ مینیجر انجن
             private void createWebPrintJob(WebView webView) {
-                PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
-                String jobName = "Ji_Bhai_Khata_Document";
-                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
-                if (printManager != null) {
-                    printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
+                    String jobName = "Ji_Bhai_Khata_Document";
+                    PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+                    if (printManager != null) {
+                        printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+                    }
                 }
             }
 
@@ -206,18 +185,16 @@ jobs:
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل تیار کرنا
+        # ایپ کی اپنی build.gradle فائل تیار کرنا (Target SDK 35 فکسڈ)
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
             namespace 'com.stylelink.jibhaikhata'
-
-                        compileSdk 35
+            compileSdk 35
             defaultConfig {
                 applicationId "com.stylelink.jibhaikhata"
                 minSdk 24
                 targetSdk 35
-
                 versionCode 1
                 versionName "1.0.0"
             }
