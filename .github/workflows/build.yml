@@ -1,3 +1,14 @@
+یہ رہا مکمل اور فکسڈ گٹ ہب ورک فلو (GitHub Workflow) کوڈ۔ اس کوڈ میں اینڈرائیڈ
+ورژن کو 35 اور تھیم کو Theme.NoTitleBar پر فکس کر دیا گیا ہے تاکہ اسکرین کا کٹنا
+اور بڑا ہونا بالکل ٹھیک ہو جائے اور پلے اسٹور بھی فائل کو بلاک نہ کرے۔
+
+گٹ ہب پر کوڈ پیسٹ کرنے کا طریقہ:
+
+1.  اپنے گٹ ہب اکاؤنٹ پر پروجیکٹ کے فولڈر .github/workflows میں جائیں۔
+2.  وہاں موجود فائل build.yml کو اوپن کر کے پینسل (Pencil) کے نشان پر کلک کریں۔
+3.  وہاں موجود پہلے سے لکھا ہوا سارا کوڈ مٹا (Delete کر) دیں اور نیچے دیا گیا یہ
+    کوڈ وہاں پیسٹ کر دیں:
+
 name: Generate Play Store Bundle
 
 on:
@@ -44,7 +55,7 @@ jobs:
         # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
-        # اینڈرائیڈ مینی فیسٹ فائل بنانا
+        # اینڈرائیڈ مینی فیسٹ فائل بنانا (NoTitleBar تھیم کے ساتھ تاکہ لے آؤٹ کٹے نہیں)
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.afuma.jibhaikhata">
@@ -59,7 +70,7 @@ jobs:
                 android:allowBackup="true"
                 android:label="Ji Bhai Khata"
                 android:supportsRtl="true"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.NoTitleBar">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
@@ -243,3 +254,17 @@ jobs:
       with:
         name: Ji-Bhai-Khata-Testing-APK
         path: app/build/outputs/apk/release/app-release.apk
+
+اگلا قدم:
+
+1.  اس کوڈ کو پیسٹ کرنے کے بعد نیچے گرین رنگ کا بٹن Commit changes دبا کر سیو کر
+    لیں۔
+2.  سیو کرنے کے بعد اوپر مینو میں Actions ٹیب پر کلک کریں اور بلڈ کے مکمل ہونے
+    کا انتظار کریں (1 سے 2 منٹ کا وقت لگے گا اور ہری روشنی جل جائے گی)۔
+3.  بلڈ مکمل ہونے کے بعد ہری روشنی پر کلک کریں اور نیچے سے نیا پلے اسٹور بنڈل
+    Ji-Bhai-Khata-PlayStore-Bundle (AAB فائل) ڈاؤن لوڈ کر لیں۔
+4.  اب پلے کنسول کے پیج پر واپس جا کر پرانے ڈرافٹ کو Discard draft release کر
+    دیں اور یہ نئی فائل اپلوڈ کریں۔
+
+آپ کی اسکرین کا مسئلہ بھی بالکل حل ہو جائے گا اور ایپ پلے اسٹور پر کامیابی سے
+پبلش بھی ہو جائے گی!
