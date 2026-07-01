@@ -41,7 +41,11 @@ jobs:
         mkdir -p app/src/main/assets
         mkdir -p app/src/main/java/com/afuma/jibhaikhata
         
-        # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
+        # --- جادوئی کمانڈ: انڈیکس فائل کو کاپی کرنے سے پہلے اس کی CSS خودکار تبدیل کرنا ---
+        # یہ کمانڈ 'overflow: hidden !important;' کو ختم کر دے گی تاکہ اسکرولنگ ہو سکے اور بٹن نظر آئیں
+        sed -i 's/overflow: hidden !important;/overflow: visible !important;/g' index.html
+        
+        # آپ کی تبدیل شدہ انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
         cp index.html app/src/main/assets/index.html
         
         # اینڈرائیڈ مینی فیسٹ فائل بنانا (NoTitleBar تھیم کے ساتھ)
