@@ -14,6 +14,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
+        html, body {
+            height: 100% !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             top: 0px !important;
@@ -82,7 +88,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
+<body class="bg-gray-100 h-full overflow-hidden flex flex-col max-w-md mx-auto shadow-2xl relative">
 
     <!-- PDF Generating Loader Modal -->
     <div id="pdf-loader-modal" class="fixed inset-0 bg-black/80 z-[99] hidden flex flex-col items-center justify-center p-6 no-print">
@@ -211,7 +217,7 @@
                 <h3 class="font-bold mb-2 text-xs text-gray-700">نیا گاہک شامل کریں</h3>
                 <div class="space-y-1.5">
                     <input type="text" id="cust-name" placeholder="گاہک کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
-                    <input type="text" id="cust-phone" placeholder="موبائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="text" id="cust-phone" placeholder="مائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
                     <button onclick="addCustomer()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">محفوظ کریں</button>
                 </div>
             </div>
@@ -1360,6 +1366,7 @@
             renderCustomers(filtered);
         }
 
+        // --- OPEN LEDGER PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openLedgerPage(customerKey) {
             selectedCustomerKey = customerKey;
             document.getElementById('ledger-page').classList.remove('hidden');
@@ -1740,6 +1747,7 @@
             renderStock(filtered);
         }
 
+        // --- OPEN STOCK DETAIL PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openStockDetailPage(itemKey) {
             selectedStockItemKey = itemKey;
             document.getElementById('stock-detail-page').classList.remove('hidden');
@@ -1857,6 +1865,7 @@
             window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
         }
 
+        // --- DYNAMIC QUANTITY SUBTRACTION ON DELETE ---
         function deleteStockLedgerEntry(entryKey, qty, type) {
             if (confirm("کیا آپ واقعی یہ انٹری اسٹاک ہسٹری سے خارج کرنا چاہتے ہیں؟")) {
                 db.ref(`stock_ledgers/${selectedStockItemKey}/${entryKey}`).remove().then(() => {
