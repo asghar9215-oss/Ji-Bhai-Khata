@@ -12,11 +12,11 @@ on:
         required: true
         default: 'com.stylelink.jibhaikhata'
       version_code:
-        description: 'ورژن کوڈ لکھیں (یہ ہمیشہ پچھلی بلڈ سے بڑا نمبر ہونا چاہیے)'
+        description: 'ورژن کوڈ لکھیں'
         required: true
         default: '10008'
       version_name:
-        description: 'ورژن کا نام لکھیں (جیسے 1.0.8)'
+        description: 'ورژن کا نام لکھیں'
         required: true
         default: '1.0.8'
       blogger_url:
@@ -46,7 +46,6 @@ jobs:
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
-      # 🎨 اینڈرائیڈ کا اپنا ویکٹر ڈیجیٹل لوگو تیار کرنا جو کبھی کریش نہیں ہو سکتا
       - name: Generate High Quality XML App Icon
         run: |
           cat << 'EOF' > app/src/main/res/drawable/ic_launcher_foreground.xml
@@ -243,23 +242,19 @@ jobs:
           }
           EOF
 
-      # 🛠️ مینی فیسٹ سے پیکیج ٹیگ ہٹا دیا گیا ہے تاکہ گریڈل ایرر نہ دے
       - name: Generate Android Manifest File
         run: |
           cat << EOF > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
               <uses-permission android:name="android.permission.INTERNET" />
               <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
               <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
                   android:icon="@drawable/ic_launcher_foreground"
                   android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
-                  
                   <activity android:name=".MainActivity"
                       android:exported="true"
                       android:configChanges="orientation|screenSize|keyboardHidden">
@@ -272,10 +267,10 @@ jobs:
           </manifest>
           EOF
 
-      - name: Generate Permanent Master Keystore and Reset Pem
+      # 🔑 یہاں گٹ ہب آپ کے سیٹ کیے گئے پرانے فکسڈ پاسورڈز کو استعمال کر کے ایک مستقل چابی بنائے گا
+      - name: Generate Permanent Master Keystore
         run: |
-          keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias jibhaikhata_master_key -keyalg RSA -keysize 2048 -validity 10000 -storepass "jibhaikhataPass786" -keypass "jibhaikhataPass786" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
-          keytool -export -rfc -keystore app/jibhaikhata_master.keystore -alias jibhaikhata_master_key -file app/upload_certificate.pem -storepass "jibhaikhataPass786"
+          keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
 
       - name: Generate Build Gradle Configuration
         run: |
@@ -295,7 +290,14 @@ jobs:
           android {
               namespace "${{ github.event.inputs.package_name }}"
               compileSdk 35
-              signingConfigs { release { storeFile file("jibhaikhata_master.keystore"); storePassword "jibhaikhataPass786"; keyAlias "jibhaikhata_master_key"; keyPassword "jibhaikhataPass786" } }
+              signingConfigs { 
+                  release { 
+                      storeFile file("jibhaikhata_master.keystore")
+                      storePassword "${{ secrets.KEYSTORE_PASSWORD }}"
+                      keyAlias "${{ secrets.KEY_ALIAS }}"
+                      keyPassword "${{ secrets.KEY_PASSWORD }}"
+                  } 
+              }
               
               defaultConfig { 
                   applicationId "${{ github.event.inputs.package_name }}"
@@ -318,8 +320,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: jibhaikhata_PlayStore_And_Reset_Key
+          name: jibhaikhata_Final_Release_Files
           path: |
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
-            app/upload_certificate.pem
