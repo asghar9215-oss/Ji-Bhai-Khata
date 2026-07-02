@@ -1957,9 +1957,11 @@
             }
         }
       
-      
+   
   </script>
-      <style>
+      
+        
+<style>
     /* باڈی اور مین ایریا کی اسکرولنگ سیٹ کرنا */
     html, body {
         overflow-y: auto !important;
@@ -1968,10 +1970,15 @@
     
     /* مین کنٹینٹ کو مینیو بار سے اوپر رکھنا تاکہ لسٹ چھپے نہیں */
     main, .print-section {
-        padding-bottom: 100px !important;
+        padding-bottom: 120px !important;
     }
 
-    /* نچلے مینیو بار (NAV) کا بالکل نیا اور فکسڈ لے آؤٹ */
+    /* 🎯 اوپر والے ہیڈر کو نیچے کرنے کے لیے تاکہ ٹاپ بار نہ کٹے */
+    header {
+        padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    /* 🎯 نچلے مینیو بار (NAV) کا فائنل لے آؤٹ جو ناموں کو اوپر لائے گا */
     nav {
         position: fixed !important;
         bottom: 0 !important;
@@ -1983,8 +1990,10 @@
         box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
         z-index: 99999 !important;
         display: grid !important;
-        grid-template-cols: repeat(4, 1fr) !important; /* چاروں بٹن برابر حصوں میں بٹ جائیں گے */
-        padding: 8px 0 !important;
+        grid-template-cols: repeat(4, 1fr) !important;
+        padding-top: 10px !important;
+        /* یہ جادوئی لائن مینیو کو موبائل کے ہوم بٹنوں سے محفوظ اوپر رکھے گی اور نام نظر آئیں گے */
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; 
         border-top: 1px solid #e5e7eb !important;
         transform: none !important;
     }
@@ -2010,6 +2019,7 @@
         white-space: nowrap !important; /* ٹیکسٹ کو نیچے والی لائن میں ٹوٹنے سے روکے گا */
     }
 </style>
+
 
       
       
