@@ -6,11 +6,11 @@ on:
       app_name:
         description: 'ایپ کا نام درج کریں'
         required: true
-        default: 'StyleLink Pro'
+        default: 'Ji Bhai Khata'
       package_name:
         description: 'پیکیج کا نام (com.example.app)'
         required: true
-        default: 'com.afuma.stylelink'
+        default: 'com.stylelink.jibhaikhata'
       version_code:
         description: 'ورژن کوڈ لکھیں (یہ ہمیشہ پچھلی بلڈ سے بڑا نمبر ہونا چاہیے)'
         required: true
@@ -37,12 +37,15 @@ jobs:
       - name: Initialize Android Project Directory
         run: |
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/java/com/afuma/stylelink
+          # ڈائنامک پیکیج کے لیے فولڈر کا راستہ خودکار بنانا
+          PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
+          mkdir -p "app/src/main/java/$PKG_PATH"
 
       - name: Generate Android Native Java Source Code
         run: |
-          cat << 'EOF' > app/src/main/java/com/afuma/stylelink/MainActivity.java
-          package com.afuma.stylelink;
+          PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
+          cat << 'EOF' > "app/src/main/java/$PKG_PATH/MainActivity.java"
+          package ${{ github.event.inputs.package_name }};
 
           import android.app.Activity;
           import android.content.Intent;
@@ -60,6 +63,9 @@ jobs:
           import android.app.DownloadManager;
           import android.content.Context;
           import android.widget.Toast;
+          import android.print.PrintAttributes;
+          import android.print.PrintDocumentAdapter;
+          import android.print.PrintManager;
 
           public class MainActivity extends Activity {
               private WebView myWebView;
@@ -73,8 +79,7 @@ jobs:
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                       requestPermissions(new String[]{
                               "android.permission.ACCESS_FINE_LOCATION",
-                              "android.permission.ACCESS_COARSE_LOCATION",
-                              "android.permission.WRITE_EXTERNAL_STORAGE"
+                              "android.permission.ACCESS_COARSE_LOCATION"
                       }, 1);
                   }
 
@@ -85,13 +90,17 @@ jobs:
                   webSettings.setAllowFileAccess(true);
                   webSettings.setGeolocationEnabled(true);
                   webSettings.setDatabaseEnabled(true);
-                  
                   webSettings.setAllowContentAccess(true);
                   webSettings.setMediaPlaybackRequiresUserGesture(false);
+                  
+                  webSettings.setUseWideViewPort(false);
+                  webSettings.setLoadWithOverviewMode(false);
 
                   myWebView.setWebViewClient(new WebViewClient() {
                       @Override
                       public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                          if (url == null) return false;
+                          
                           if (url.startsWith("tel:")) {
                               Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
                               startActivity(intent);
@@ -110,14 +119,13 @@ jobs:
                               }
                           }
 
-                          if (url.startsWith("http://googleusercontent.com/maps.google.com/") || url.contains("maps") || url.startsWith("intent:")) {
+                          if (url.contains("maps.google.com") || url.startsWith("geo:")) {
                               try {
                                   Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                                   startActivity(intent);
                                   return true;
                               } catch (Exception e) {
-                                  Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://maps.google.com"));
-                                  startActivity(intent);
+                                  Toast.makeText(MainActivity.this, "گوگل میپس ایپ نہیں ملی!", Toast.LENGTH_SHORT).show();
                                   return true;
                               }
                           }
@@ -168,8 +176,32 @@ jobs:
                       }
                   });
 
-                  myWebView.loadUrl("https://asghar9215-oss.github.io/style-link/");
+                  // 💎 پرنٹنگ مینیجر انٹرفیس (رپورٹس اور پرنٹ کام کرنے کے لیے لازمی)
+                  myWebView.addJavascriptInterface(new Object() {
+                      @android.webkit.JavascriptInterface
+                      public void printPage() {
+                          runOnUiThread(new Runnable() {
+                              @Override
+                              public void run() {
+                                  createWebPrintJob(myWebView);
+                              }
+                          });
+                      }
+                  }, "AndroidPrint");
+
+                  myWebView.loadUrl("https://asghar9215-oss.github.io/ji-bhai/Khata/");
                   setContentView(myWebView);
+              }
+
+              private void createWebPrintJob(WebView webView) {
+                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                      PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
+                      String jobName = "Ji_Bhai_Khata_Document";
+                      PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+                      if (printManager != null) {
+                          printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+                      }
+                  }
               }
 
               @Override
@@ -196,14 +228,11 @@ jobs:
         run: |
           cat << EOF > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.afuma.stylelink">
+              package="${{ github.event.inputs.package_name }}">
 
               <uses-permission android:name="android.permission.INTERNET" />
               <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
               <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-              <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
               <application
                   android:allowBackup="true"
@@ -224,18 +253,17 @@ jobs:
           </manifest>
           EOF
 
-      # 🔑 نئی پکی چابی بنانا اور اس کا گوگل ری سیٹ سرٹیفکیٹ (.pem) نکالنا
       - name: Generate Permanent Master Keystore and Reset Pem
         run: |
-          keytool -genkey -v -keystore app/stylelink_master.keystore -alias stylelink_master_key -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLinkPass786" -keypass "StyleLinkPass786" -dname "CN=StyleLink, OU=App, O=StyleLink, L=Lahore, S=Punjab, C=PK"
-          keytool -export -rfc -keystore app/stylelink_master.keystore -alias stylelink_master_key -file app/upload_certificate.pem -storepass "StyleLinkPass786"
+          keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias jibhaikhata_master_key -keyalg RSA -keysize 2048 -validity 10000 -storepass "jibhaikhataPass786" -keypass "jibhaikhataPass786" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
+          keytool -export -rfc -keystore app/jibhaikhata_master.keystore -alias jibhaikhata_master_key -file app/upload_certificate.pem -storepass "jibhaikhataPass786"
 
       - name: Generate Build Gradle Configuration
         run: |
           cat << 'EOF' > settings.gradle
           pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
           dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
-          rootProject.name = "style-link"
+          rootProject.name = "stylelink-jibhaikhata"
           include ':app'
           EOF
 
@@ -246,14 +274,14 @@ jobs:
           cat << 'EOF' > app/build.gradle
           plugins { id 'com.android.application' }
           android {
-              namespace 'com.afuma.stylelink'
-              compileSdk 34
-              signingConfigs { release { storeFile file("stylelink_master.keystore"); storePassword "StyleLinkPass786"; keyAlias "stylelink_master_key"; keyPassword "StyleLinkPass786" } }
+              namespace "${{ github.event.inputs.package_name }}"
+              compileSdk 35
+              signingConfigs { release { storeFile file("jibhaikhata_master.keystore"); storePassword "jibhaikhataPass786"; keyAlias "jibhaikhata_master_key"; keyPassword "jibhaikhataPass786" } }
               
               defaultConfig { 
                   applicationId "${{ github.event.inputs.package_name }}"
                   minSdk 24
-                  targetSdk 34
+                  targetSdk 35
                   versionCode ${{ github.event.inputs.version_code }}
                   versionName "${{ github.event.inputs.version_name }}"
               }
@@ -268,11 +296,10 @@ jobs:
           gradle wrapper --gradle-version 8.5
           ./gradlew :app:bundleRelease :app:assembleRelease --no-build-cache
 
-      # 🔥 یہاں ہم گوگل کے لیے سرٹیفکیٹ اور پلے اسٹور کی فائلیں دونوں ڈاؤن لوڈ فولڈر میں ڈال رہے ہیں
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: StyleLink_PlayStore_And_Reset_Key
+          name: jibhaikhata_PlayStore_And_Reset_Key
           path: |
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
