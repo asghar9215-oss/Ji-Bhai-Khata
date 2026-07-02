@@ -5,10 +5,9 @@ on:
     branches:
       - main
   workflow_dispatch:
-    # 🎯 شاہ جی، یہ سیٹنگ بلڈ رن کرتے وقت آپ سے خود بلاگر کا لنک مانگے گی
     inputs:
       blogger_url:
-        description: 'اپنے بلاگر یا ایپ کا مکمل لنک یہاں پیسٹ کریں'
+        description: 'Blogger Web App URL'
         required: true
         default: 'https://alastak.blogspot.com'
         type: string
@@ -29,13 +28,11 @@ jobs:
 
     - name: Initialize Android Base Project
       run: |
-        # settings.gradle بنانا
         cat <<EOF > settings.gradle
         include ':app'
         rootProject.name = "Ji-Bhai-Khata"
         EOF
 
-        # مین پروجیکٹ کی build.gradle بنانا
         cat <<EOF > build.gradle
         buildscript {
             repositories { google(); mavenCentral() }
@@ -44,11 +41,11 @@ jobs:
         allprojects { repositories { google(); mavenCentral() } }
         EOF
 
-        # ایپ کے فولڈرز تیار کرنا (پلے اسٹور کے پیکیج com.stylelink.jibhaikhata کے مطابق فکسڈ)
         mkdir -p app/src/main/assets
         mkdir -p app/src/main/java/com/stylelink/jibhaikhata
         
-        # اینڈرائیڈ مینی فیسٹ فائل بنانا (درست پیکیج نام کے ساتھ)
+        cp index.html app/src/main/assets/index.html
+        
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.stylelink.jibhaikhata">
@@ -74,7 +71,6 @@ jobs:
         </manifest>
         EOF
 
-        # MainActivity.java بنانا (جو لنک آپ گٹ ہب پر دیں گے یہ اسے خودکار طریقے سے یہاں فٹ کر دے گا)
         cat <<EOF > app/src/main/java/com/stylelink/jibhaikhata/MainActivity.java
         package com.stylelink.jibhaikhata;
 
@@ -131,7 +127,7 @@ jobs:
                         if (url.startsWith("alarm:")) {
                             try {
                                 Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-                                intent.putExtra(AlarmClock.EXTRA_MESSAGE, "جی بھائی کھاتا ریمائنڈر");
+                                intent.putExtra(AlarmClock.EXTRA_MESSAGE, "Ji Bhai Khata Reminder");
                                 startActivity(intent);
                                 return true;
                             } catch (Exception e) {
@@ -143,7 +139,6 @@ jobs:
                     }
                 });
 
-                // پرنٹنگ مینیجر
                 myWebView.addJavascriptInterface(new Object() {
                     @android.webkit.JavascriptInterface
                     public void printPage() {
@@ -156,7 +151,6 @@ jobs:
                     }
                 }, "AndroidPrint");
 
-                // 🎯 گٹ ہب سے ان پٹ لیا گیا لنک یہاں خودکار رینڈر ہوگا
                 myWebView.loadUrl("${{ inputs.blogger_url }}");
                 setContentView(myWebView);
             }
@@ -190,13 +184,12 @@ jobs:
                 if (myWebView.canGoBack()) {
                     myWebView.goBack();
                 } else {
-                    super.onBackPressed();
+                    super.osBackPressed();
                 }
             }
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل (درست پیکیج com.stylelink اور ٹارگٹ SDK 35 کے ساتھ فائنل)
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
@@ -206,8 +199,8 @@ jobs:
                 applicationId "com.stylelink.jibhaikhata"
                 minSdk 24
                 targetSdk 35
-                versionCode 5         # ورژن کوڈ 5 کر دیا ہے تاکہ پلے اسٹور پرانی بلڈ کا ایرر نہ دے
-                versionName "1.0.4"   # ورژن کا نام 1.0.4 فائنل
+                versionCode 5
+                versionName "1.0.4"
             }
             signingConfigs {
                 release {
