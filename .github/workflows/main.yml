@@ -19,6 +19,12 @@ on:
         description: 'ورژن کا نام لکھیں (جیسے 1.0.5)'
         required: true
         default: '1.0.5'
+      # 🎯 شاہ جی، یہ نیا خانہ رن ورک فلو پیج پر لنک مانگے گا
+      blogger_url:
+        description: 'اپنے بلاگر یا ایپ کا لائیو لنک یہاں پیسٹ کریں'
+        required: true
+        default: 'https://dakansling.blogspot.com/?m=1'
+        type: string
 
 jobs:
   build:
@@ -37,7 +43,6 @@ jobs:
       - name: Initialize Android Project Directory
         run: |
           mkdir -p app/src/main/res/values
-          # ڈائنامک پیکیج کے لیے فولڈر کا راستہ خودکار بنانا
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
@@ -176,7 +181,6 @@ jobs:
                       }
                   });
 
-                  // 💎 پرنٹنگ مینیجر انٹرفیس (رپورٹس اور پرنٹ کام کرنے کے لیے لازمی)
                   myWebView.addJavascriptInterface(new Object() {
                       @android.webkit.JavascriptInterface
                       public void printPage() {
@@ -189,7 +193,8 @@ jobs:
                       }
                   }, "AndroidPrint");
 
-                  myWebView.loadUrl("https://asghar9215-oss.github.io/ji-bhai/Khata/");
+                  // 🎯 یہ لائن اب رن ورک فلو میں لکھے گئے لنک کو ڈائنامک لوڈ کرے گی
+                  myWebView.loadUrl("${{ github.event.inputs.blogger_url }}");
                   setContentView(myWebView);
               }
 
