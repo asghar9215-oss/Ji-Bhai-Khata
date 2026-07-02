@@ -1,10 +1,17 @@
-name: Generate Play Store Bundle
+name: Generate Play Store Bundle From URL
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+    # 🎯 شاہ جی، یہ سیٹنگ بلڈ رن کرتے وقت آپ سے خود بلاگر کا لنک مانگے گی
+    inputs:
+      blogger_url:
+        description: 'اپنے بلاگر یا ایپ کا مکمل لنک یہاں پیسٹ کریں'
+        required: true
+        default: 'https://alastak.blogspot.com'
+        type: string
 
 jobs:
   build:
@@ -37,12 +44,9 @@ jobs:
         allprojects { repositories { google(); mavenCentral() } }
         EOF
 
-        # ایپ کے فولڈرز تیار کرنا (پلے اسٹور کے مطابق پیکیج فولڈر نام com/stylelink/jibhaikhata کر دیا ہے)
+        # ایپ کے فولڈرز تیار کرنا (پلے اسٹور کے پیکیج com.stylelink.jibhaikhata کے مطابق فکسڈ)
         mkdir -p app/src/main/assets
         mkdir -p app/src/main/java/com/stylelink/jibhaikhata
-        
-        # آپ کی انڈیکس فائل کو ایسٹس فولڈر میں منتقل کرنا
-        cp index.html app/src/main/assets/index.html
         
         # اینڈرائیڈ مینی فیسٹ فائل بنانا (درست پیکیج نام کے ساتھ)
         cat <<EOF > app/src/main/AndroidManifest.xml
@@ -70,7 +74,7 @@ jobs:
         </manifest>
         EOF
 
-        # MainActivity.java بنانا (درست پیکیج نام کے ساتھ)
+        # MainActivity.java بنانا (جو لنک آپ گٹ ہب پر دیں گے یہ اسے خودکار طریقے سے یہاں فٹ کر دے گا)
         cat <<EOF > app/src/main/java/com/stylelink/jibhaikhata/MainActivity.java
         package com.stylelink.jibhaikhata;
 
@@ -152,7 +156,8 @@ jobs:
                     }
                 }, "AndroidPrint");
 
-                myWebView.loadUrl("file:///android_asset/index.html");
+                // 🎯 گٹ ہب سے ان پٹ لیا گیا لنک یہاں خودکار رینڈر ہوگا
+                myWebView.loadUrl("${{ inputs.blogger_url }}");
                 setContentView(myWebView);
             }
 
@@ -191,7 +196,7 @@ jobs:
         }
         EOF
 
-        # ایپ کی اپنی build.gradle فائل (درست پیکیج نام com.stylelink، ٹارگٹ SDK 35 اور ورژن کوڈ 3 کے ساتھ فائنل)
+        # ایپ کی اپنی build.gradle فائل (درست پیکیج com.stylelink اور ٹارگٹ SDK 35 کے ساتھ فائنل)
         cat <<EOF > app/build.gradle
         plugins { id 'com.android.application' }
         android {
@@ -201,8 +206,8 @@ jobs:
                 applicationId "com.stylelink.jibhaikhata"
                 minSdk 24
                 targetSdk 35
-                versionCode 3
-                versionName "1.0.2"
+                versionCode 5         # ورژن کوڈ 5 کر دیا ہے تاکہ پلے اسٹور پرانی بلڈ کا ایرر نہ دے
+                versionName "1.0.4"   # ورژن کا نام 1.0.4 فائنل
             }
             signingConfigs {
                 release {
