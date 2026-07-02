@@ -14,12 +14,11 @@ on:
       version_code:
         description: 'ورژن کوڈ لکھیں (یہ ہمیشہ پچھلی بلڈ سے بڑا نمبر ہونا چاہیے)'
         required: true
-        default: '10005'
+        default: '10008'
       version_name:
-        description: 'ورژن کا نام لکھیں (جیسے 1.0.5)'
+        description: 'ورژن کا نام لکھیں (جیسے 1.0.8)'
         required: true
-        default: '1.0.5'
-      # 🎯 شاہ جی، یہ نیا خانہ رن ورک فلو پیج پر لنک مانگے گا
+        default: '1.0.8'
       blogger_url:
         description: 'اپنے بلاگر یا ایپ کا لائیو لنک یہاں پیسٹ کریں'
         required: true
@@ -43,8 +42,22 @@ jobs:
       - name: Initialize Android Project Directory
         run: |
           mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/mipmap-mdpi
+          mkdir -p app/src/main/res/mipmap-hdpi
+          mkdir -p app/src/main/res/mipmap-xhdpi
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
+
+      # 🎨 پلے اسٹور کے لیے ایک عارضی لیکن ویلڈ بلٹ ان آئیکن تیار کرنا (تاکہ پلے اسٹور ریجیکٹ نہ کرے)
+      - name: Generate Custom App Icons
+        run: |
+          echo "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy44LjIsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvJS9sYgAFAAAAb0lEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBtABygAAEFAOf4AAAAAElFTkSuQmCC" | base64 -d > app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
       - name: Generate Android Native Java Source Code
         run: |
@@ -193,7 +206,6 @@ jobs:
                       }
                   }, "AndroidPrint");
 
-                  // 🎯 یہ لائن اب رن ورک فلو میں لکھے گئے لنک کو ڈائنامک لوڈ کرے گی
                   myWebView.loadUrl("${{ github.event.inputs.blogger_url }}");
                   setContentView(myWebView);
               }
@@ -242,7 +254,7 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:icon="@android:drawable/sym_def_app_icon"
+                  android:icon="@mipmap/ic_launcher"
                   android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
                   
