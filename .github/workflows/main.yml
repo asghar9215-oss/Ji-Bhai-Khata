@@ -41,23 +41,25 @@ jobs:
 
       - name: Initialize Android Project Directory
         run: |
+          mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/mipmap-mdpi
-          mkdir -p app/src/main/res/mipmap-hdpi
-          mkdir -p app/src/main/res/mipmap-xhdpi
-          mkdir -p app/src/main/res/mipmap-xxhdpi
-          mkdir -p app/src/main/res/mipmap-xxxhdpi
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
-      # 🎨 پلے اسٹور کے لیے ایک عارضی لیکن ویلڈ بلٹ ان آئیکن تیار کرنا (تاکہ پلے اسٹور ریجیکٹ نہ کرے)
-      - name: Generate Custom App Icons
+      # 🎨 اینڈرائیڈ کا اپنا ویکٹر ڈیجیٹل لوگو تیار کرنا جو کبھی کریش نہیں ہو سکتا
+      - name: Generate High Quality XML App Icon
         run: |
-          echo "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy44LjIsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvJS9sYgAFAAAAb0lEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMBtABygAAEFAOf4AAAAAElFTkSuQmCC" | base64 -d > app/src/main/res/mipmap-mdpi/ic_launcher.png
-          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher.png
-          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          cp app/src/main/res/mipmap-mdpi/ic_launcher.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cat << 'EOF' > app/src/main/res/drawable/ic_launcher_foreground.xml
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path
+                  android:fillColor="#FFFFFF"
+                  android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
+          </vector>
+          EOF
 
       - name: Generate Android Native Java Source Code
         run: |
@@ -241,11 +243,11 @@ jobs:
           }
           EOF
 
+      # 🛠️ مینی فیسٹ سے پیکیج ٹیگ ہٹا دیا گیا ہے تاکہ گریڈل ایرر نہ دے
       - name: Generate Android Manifest File
         run: |
           cat << EOF > app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="${{ github.event.inputs.package_name }}">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
               <uses-permission android:name="android.permission.INTERNET" />
               <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -254,7 +256,7 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:icon="@mipmap/ic_launcher"
+                  android:icon="@drawable/ic_launcher_foreground"
                   android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
                   
