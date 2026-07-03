@@ -267,10 +267,11 @@ jobs:
           </manifest>
           EOF
 
-      # 🔑 یہاں گٹ ہب آپ کے سیٹ کیے گئے پرانے فکسڈ پاسورڈز کو استعمال کر کے ایک مستقل چابی بنائے گا
-      - name: Generate Permanent Master Keystore
+      # 🔑 شاہ جی، یہاں پاسورڈ کے ساتھ ساتھ سرٹیفکیٹ فائل (.pem) برآمد کرنے کا مینوئل کوڈ بالکل پکا جوڑ دیا ہے
+      - name: Generate Permanent Master Keystore and Export Pem
         run: |
           keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
+          keytool -export -rfc -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -file app/upload_certificate.pem -storepass "${{ secrets.KEYSTORE_PASSWORD }}"
 
       - name: Generate Build Gradle Configuration
         run: |
@@ -317,6 +318,7 @@ jobs:
           gradle wrapper --gradle-version 8.5
           ./gradlew :app:bundleRelease :app:assembleRelease --no-build-cache
 
+      # 📦 شاہ جی، یہاں بھی تیسری فائل کی لوکیشن ایڈ کر دی ہے تاکہ زپ کے اندر یہ لازمی شامل ہو جائے
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -324,3 +326,4 @@ jobs:
           path: |
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
+            app/upload_certificate.pem
