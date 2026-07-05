@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!DOCTYPE html>   
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>جی بھائی کھاتا</title>
-    <!-- Tailwind CSS -->
+    <title>AFUMA WATER - جی بھائی کھاتا</title>
+    <!-- Tailwind CSS -->     
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link class="no-print" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +19,7 @@
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
-            -webkit-text-size-adjust: 100% !important; /* موبائل کا ڈیفالٹ فانٹ زوم بند کرنے کے لیے */
+            -webkit-text-size-adjust: 100% !important;
             text-size-adjust: 100% !important;
         }
         body {
@@ -63,6 +63,39 @@
             visibility: hidden !important;
         }
 
+        /* Background Watermark Utility */
+        .watermark-bg {
+            position: relative;
+        }
+        .watermark-bg::before {
+            content: "AFUMA WATER";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+        }
+
+        /* Print Specific Watermark */
+        .print-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03) !important;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            display: none;
+        }
+
         /* Advance Clean Printing Engine */
         @media print {
             body {
@@ -82,6 +115,11 @@
                 left: 0 !important;
                 padding: 10px !important;
                 direction: rtl !important;
+            }
+            .print-watermark {
+                display: block !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
         
@@ -106,7 +144,10 @@
     <div id="auth-screen" class="fixed inset-0 bg-white z-[60] p-6 flex flex-col justify-center items-center hidden no-print">
         <div class="w-full max-w-sm space-y-4">
             <div class="text-center mb-1">
-                <h2 class="text-2xl font-bold text-red-600">جی بھائی کھاتا</h2>
+                <div class="border-b pb-2 mb-3">
+                    <h2 class="text-3xl font-extrabold text-red-600 tracking-widest">AFUMA WATER</h2>
+                    <p class="text-xs font-bold text-gray-500 tracking-wide">جی بھائی کھاتا</p>
+                </div>
                 <p id="auth-subtitle" class="text-xs text-gray-500 mb-2">لاگ ان یا سائن اپ معلومات درج کریں</p>
                 
                 <div class="lang-selector bg-gray-50 p-2 rounded border">
@@ -147,9 +188,17 @@
     <div id="google_translate_element"></div>
 
     <!-- Top Header -->
-    <header class="bg-red-600 text-white p-2.5 sticky top-0 z-40 shadow flex flex-col no-print">
-        <div class="flex justify-between items-center">
-            <h1 class="text-base font-bold">جی بھائی کھاتا</h1>
+    <header class="bg-red-600 text-white p-3 sticky top-0 z-40 shadow flex flex-col no-print">
+        <div class="flex justify-between items-center text-xs font-semibold mb-2">
+            <!-- Left Side: Date -->
+            <div class="live-date font-mono tracking-wider opacity-90">--/--/----</div>
+            <!-- Center: AFUMA WATER & Ji Bhai Khata -->
+            <div class="text-center">
+                <h1 class="text-base font-extrabold tracking-widest text-white">AFUMA WATER</h1>
+                <p class="text-[11px] font-bold text-red-100 tracking-wide">جی بھائی کھاتا</p>
+            </div>
+            <!-- Right Side: Time -->
+            <div class="live-time font-mono tracking-wider opacity-90">--:--:--</div>
         </div>
         
         <div class="lang-selector border-t border-red-500 pt-1.5">
@@ -161,7 +210,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1 p-2.5 overflow-y-auto print-section no-print pb-20">
+    <main class="flex-1 p-2.5 overflow-y-auto print-section no-print pb-20 watermark-bg">
         
         <!-- Tab 1: Cash Book -->
         <section id="cash-tab" class="tab-content">
@@ -219,7 +268,7 @@
                 <h3 class="font-bold mb-2 text-xs text-gray-700">نیا گاہک شامل کریں</h3>
                 <div class="space-y-1.5">
                     <input type="text" id="cust-name" placeholder="گاہک کا نام لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600">
-                    <input type="text" id="cust-phone" placeholder="موبائل نمبر لکھیں" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
+                    <input type="tel" id="cust-phone" placeholder="موبائل نمبر لکھیں (مثلاً 03238833319)" class="w-full border p-1.5 text-xs rounded focus:outline-red-600 text-right">
                     <button onclick="addCustomer()" class="w-full bg-red-600 text-white py-1.5 rounded text-xs font-bold hover:bg-red-700">محفوظ کریں</button>
                 </div>
             </div>
@@ -239,7 +288,65 @@
             </div>
         </section>
 
-        <!-- Tab 3: Stock Book -->
+        <!-- Tab 3: Chat Group (Sale Purchase) -->
+        <section id="chat-tab" class="tab-content hidden flex flex-col h-full relative">
+            <!-- Chat Head live update -->
+            <div class="bg-red-50 border border-red-100 rounded-lg p-2.5 mb-2.5 flex justify-between items-center text-xs">
+                <div class="live-date font-mono text-gray-600 font-semibold">--/--/----</div>
+                <div class="font-extrabold text-red-600 text-sm">سیل پرچیز چیٹ گروپ</div>
+                <div class="live-time font-mono text-gray-600 font-semibold">--:--:--</div>
+            </div>
+
+            <!-- Messages dynamic container -->
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto bg-white/70 backdrop-blur rounded-lg p-3 border border-gray-200 space-y-4 mb-2 min-h-[420px] max-h-[70vh]">
+                <!-- Load messages dynamically here -->
+            </div>
+
+            <!-- Quote/Reply Preview Panel -->
+            <div id="chat-reply-preview-box" class="hidden bg-gray-50 border-r-4 border-red-600 rounded-lg p-2 mb-2 relative flex flex-col text-right">
+                <div class="flex justify-between items-center font-bold text-red-700 text-[10px] mb-1">
+                    <span id="reply-preview-sender">اصغر علی</span>
+                    <button onclick="cancelReply()" class="text-gray-400 hover:text-red-700">
+                        <i class="fa-solid fa-circle-xmark text-sm"></i>
+                    </button>
+                </div>
+                <p id="reply-preview-text" class="text-[11px] text-gray-600 truncate"></p>
+                <img id="reply-preview-img" src="" class="hidden h-10 w-10 object-cover rounded mt-1 border">
+            </div>
+
+            <!-- Attached Image Preview Screen -->
+            <div id="chat-image-preview-box" class="hidden bg-gray-50 border border-dashed border-gray-300 rounded-lg p-2 mb-2 relative flex items-center gap-3">
+                <img id="chat-image-preview-el" src="" class="h-14 w-14 object-cover rounded border shadow-sm">
+                <div class="text-[10px] text-gray-500 flex-1">
+                    <p class="font-bold truncate text-gray-700" id="chat-image-name">تصویر منتخب کی گئی ہے</p>
+                    <p class="text-[9px] text-gray-400">اپلوڈ کے لیے تیار</p>
+                </div>
+                <button onclick="cancelSelectedChatImage()" class="text-red-500 p-1.5 hover:text-red-700 transition">
+                    <i class="fa-solid fa-circle-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Text and Image controls row -->
+            <div class="bg-white p-2.5 rounded-lg border shadow-sm space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <button onclick="triggerChatFileInput()" class="bg-gray-100 text-gray-600 p-2.5 rounded-lg border hover:bg-gray-200 transition flex items-center justify-center">
+                        <i class="fa-solid fa-image text-lg"></i>
+                    </button>
+                    <input type="file" id="chat-file-input" accept="image/*" class="hidden" onchange="handleChatFileSelect(event)">
+                    
+                    <input type="text" id="chat-text-input" placeholder="اپنا پیغام یہاں لکھیں..." class="flex-1 border p-2.5 text-xs rounded-lg focus:outline-red-600">
+                    
+                    <button onclick="sendChatMessage()" class="bg-red-600 text-white p-2.5 rounded-lg font-bold hover:bg-red-700 transition flex items-center justify-center shadow-md shadow-red-100">
+                        <i class="fa-solid fa-paper-plane text-base"></i>
+                    </button>
+                </div>
+                <div class="text-[9px] text-gray-400 text-right leading-relaxed">
+                    * نوٹس: اس چیٹ گروپ میں بھیجے جانے والے پیغامات اور پروڈکٹ تصاویر تمام صارفین کو نظر آئیں گی۔
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Stock Book -->
         <section id="stock-tab" class="tab-content hidden">
             <!-- Add Item -->
             <div class="bg-white rounded-lg p-3 shadow mb-2 no-print">
@@ -269,7 +376,7 @@
             </div>
         </section>
 
-        <!-- Tab 4: Tools -->
+        <!-- Tab 5: Tools -->
         <section id="tools-tab" class="tab-content hidden no-print">
             <!-- Calculator Card -->
             <div class="bg-white rounded-lg p-3 shadow mb-3">
@@ -295,6 +402,36 @@
                     <button onclick="pressCalc('0')" class="bg-gray-200 p-2 rounded font-bold">0</button>
                     <button onclick="solveCalc()" class="bg-red-600 text-white p-2 rounded font-bold">=</button>
                     <button onclick="pressCalc('+')" class="bg-red-100 text-red-800 p-2 rounded font-bold">+</button>
+                </div>
+            </div>
+
+            <!-- Admin Live Chat & Complaint Box -->
+            <div class="bg-white rounded-lg p-3 shadow mb-3 border border-red-100">
+                <h3 class="font-bold mb-2 text-xs text-red-700 flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-headset text-base"></i>
+                        <span>ایڈمن لائیو چیٹ شکایات باکس</span>
+                    </div>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold bg-green-100 text-green-800 animate-pulse">
+                        لائیو ایڈمن
+                    </span>
+                </h3>
+
+                <!-- Support Conversation Screen -->
+                <div id="support-chat-box" class="h-44 overflow-y-auto bg-gray-50 border rounded-lg p-2.5 mb-2 flex flex-col gap-2">
+                    <div class="text-center text-gray-400 py-6 text-[10px]">لوڈ ہو رہا ہے...</div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex gap-1.5">
+                        <input type="text" id="complaint-text" placeholder="ایڈمن کو لائیو پیغام بھیجیں..." class="flex-1 border p-2 text-xs rounded-lg focus:outline-red-600">
+                        <button onclick="submitComplaint()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-700 transition flex items-center justify-center">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <button onclick="submitWhatsAppComplaint()" class="w-full bg-green-600 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-green-700 transition flex items-center justify-center gap-1">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> واٹس ایپ لائیو سپورٹ
+                    </button>
                 </div>
             </div>
 
@@ -333,14 +470,24 @@
 
     <!-- Detailed Customer Ledger Page -->
     <div id="ledger-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
-        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
-            <button onclick="closeLedgerPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
-                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
-            </button>
-            <h2 class="text-sm font-bold">گاہک کھاتا تفصیل</h2>
-            <div></div>
+        <header class="bg-red-600 text-white p-3 shadow flex flex-col">
+            <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                <div class="live-date font-mono tracking-wider opacity-90">--/--/----</div>
+                <div class="text-center">
+                    <h1 class="text-base font-extrabold tracking-widest text-white">AFUMA WATER</h1>
+                    <p class="text-[11px] font-bold text-red-100 tracking-wide">جی بھائی کھاتا</p>
+                </div>
+                <div class="live-time font-mono tracking-wider opacity-90">--:--:--</div>
+            </div>
+            <div class="flex items-center justify-between border-t border-red-500 pt-2">
+                <button onclick="closeLedgerPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                    <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
+                </button>
+                <h2 class="text-xs font-bold">گاہک کھاتا تفصیل</h2>
+                <div class="w-10"></div>
+            </div>
         </header>
-        <div class="flex-1 p-3 overflow-y-auto space-y-3">
+        <div class="flex-1 p-3 overflow-y-auto space-y-3 watermark-bg">
             <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
                 <div>
                     <h3 id="led-cust-name" class="text-base font-bold text-gray-800">نام</h3>
@@ -371,14 +518,24 @@
 
     <!-- Detailed Stock Item Page -->
     <div id="stock-detail-page" class="fixed inset-x-0 top-0 bottom-[55px] bg-white z-50 hidden flex flex-col no-print">
-        <header class="bg-red-600 text-white p-2.5 flex items-center justify-between shadow">
-            <button onclick="closeStockDetailPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
-                <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
-            </button>
-            <h2 class="text-sm font-bold">پروڈکٹ اسٹاک ہسٹری</h2>
-            <div></div>
+        <header class="bg-red-600 text-white p-3 shadow flex flex-col">
+            <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                <div class="live-date font-mono tracking-wider opacity-90">--/--/----</div>
+                <div class="text-center">
+                    <h1 class="text-base font-extrabold tracking-widest text-white">AFUMA WATER</h1>
+                    <p class="text-[11px] font-bold text-red-100 tracking-wide">جی بھائی کھاتا</p>
+                </div>
+                <div class="live-time font-mono tracking-wider opacity-90">--:--:--</div>
+            </div>
+            <div class="flex items-center justify-between border-t border-red-500 pt-2">
+                <button onclick="closeStockDetailPage()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-800 transition">
+                    <i class="fa-solid fa-arrow-left"></i> ← واپس جائیں
+                </button>
+                <h2 class="text-xs font-bold">پروڈکٹ اسٹاک ہسٹری</h2>
+                <div class="w-10"></div>
+            </div>
         </header>
-        <div class="flex-1 p-3 overflow-y-auto space-y-3">
+        <div class="flex-1 p-3 overflow-y-auto space-y-3 watermark-bg">
             <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex justify-between items-center shadow-sm">
                 <div>
                     <h3 id="st-item-name" class="text-base font-bold text-gray-800">آئٹم کا نام</h3>
@@ -486,12 +643,13 @@
     </div>
 
     <!-- Beautiful Optimized Ledger Printing Container (Total Entries Report) -->
-    <div id="print-area" class="p-6 bg-white text-black leading-relaxed">
-        <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
+    <div id="print-area" class="p-6 bg-white text-black relative leading-relaxed">
+        <div class="print-watermark">AFUMA WATER</div>
+        
+        <div class="text-center border-b-2 border-red-600 pb-4 mb-4 relative z-10">
             <h1 id="p-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">بزنس لیجر اسٹیٹمنٹ رپورٹ</p>
             
-            <!-- Labels Top, Values Bottom format -->
             <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
                 <div>
                     <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
@@ -508,7 +666,7 @@
             </div>
         </div>
         
-        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center">
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center relative z-10">
             <div>
                 <p class="mb-1"><strong>بنام گاہک:</strong> <span id="p-cust-name" class="font-bold text-base text-gray-800"></span></p>
                 <p><strong>رابطہ نمبر:</strong> <span id="p-cust-phone" class="font-semibold text-gray-700"></span></p>
@@ -519,7 +677,7 @@
             </div>
         </div>
 
-        <table class="w-full text-right border-collapse text-xs">
+        <table class="w-full text-right border-collapse text-xs relative z-10">
             <thead>
                 <tr class="bg-red-50 text-red-900 border-b border-gray-300">
                     <th class="p-2 border-b-2 border-gray-300 text-right">تاریخ و وقت</th>
@@ -531,7 +689,7 @@
             <tbody id="p-table-body" class="divide-y divide-gray-200"></tbody>
         </table>
 
-        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200 relative z-10">
             <div class="text-center">
                 <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
                 <p class="text-[10px] text-gray-500 font-bold">دستخط گاہک</p>
@@ -544,13 +702,14 @@
         </div>
     </div>
 
-    <!-- Hidden Single Entry Receipt Printing Container (One Entry Receipt Voucher) -->
-    <div id="print-single-receipt" class="p-6 bg-white text-black leading-relaxed">
-        <div class="text-center border-b-2 border-red-600 pb-4 mb-4">
+    <!-- Hidden Single Entry Receipt Printing Container -->
+    <div id="print-single-receipt" class="p-6 bg-white text-black relative leading-relaxed">
+        <div class="print-watermark">AFUMA WATER</div>
+
+        <div class="text-center border-b-2 border-red-600 pb-4 mb-4 relative z-10">
             <h1 id="psr-biz-name" class="text-3xl font-extrabold text-red-600 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">ٹرانزیکشن رسید (ووچر)</p>
             
-            <!-- Metadata columns formatted: Label Top, Value Bottom -->
             <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
                 <div>
                     <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
@@ -567,14 +726,12 @@
             </div>
         </div>
 
-        <!-- Customer Summary -->
-        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm relative z-10">
             <p class="mb-1"><strong>نام گاہک / تفصیل:</strong> <span id="psr-cust-name" class="font-bold text-gray-800 text-base"></span></p>
             <p><strong>رابطہ نمبر:</strong> <span id="psr-cust-phone" class="font-semibold text-gray-700"></span></p>
         </div>
 
-        <!-- Single Entry Details Block -->
-        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
+        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs relative z-10">
             <div class="bg-gray-100 p-2.5 font-bold text-gray-700 border-b border-gray-300 grid grid-cols-3">
                 <div>تاریخ اور وقت</div>
                 <div>تفصیل</div>
@@ -591,8 +748,7 @@
             </div>
         </div>
 
-        <!-- Signature/Footer -->
-        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200 relative z-10">
             <div class="text-center">
                 <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
                 <p class="text-[10px] text-gray-500 font-bold">دستخط گاہک</p>
@@ -606,8 +762,10 @@
     </div>
 
     <!-- Hidden Single Stock Entry Receipt Printing Container -->
-    <div id="print-single-stock-receipt" class="p-6 bg-white text-black leading-relaxed">
-        <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
+    <div id="print-single-stock-receipt" class="p-6 bg-white text-black relative text-right leading-relaxed">
+        <div class="print-watermark">AFUMA WATER</div>
+
+        <div class="text-center border-b-2 border-green-600 pb-4 mb-4 relative z-10">
             <h1 id="pssr-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">اسٹاک ٹرانزیکشن رسید (ووچر)</p>
             
@@ -628,13 +786,13 @@
         </div>
 
         <!-- Item Summary -->
-        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm relative z-10">
             <p class="mb-1"><strong>پروڈکٹ کا نام:</strong> <span id="pssr-item-name" class="font-bold text-gray-800 text-base"></span></p>
             <p><strong>قیمت فی آئٹم:</strong> <span id="pssr-item-price" class="font-semibold text-gray-700"></span></p>
         </div>
 
         <!-- Single Entry Details Block -->
-        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
+        <div class="border border-gray-300 rounded-lg overflow-hidden text-xs relative z-10">
             <div class="bg-gray-100 p-2.5 font-bold text-gray-700 border-b border-gray-300 grid grid-cols-3">
                 <div>تاریخ اور وقت</div>
                 <div>تفصیل / وجہ</div>
@@ -651,8 +809,7 @@
             </div>
         </div>
 
-        <!-- Signature/Footer -->
-        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200 relative z-10">
             <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
             <div class="text-center">
                 <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
@@ -662,12 +819,14 @@
     </div>
 
     <!-- Beautiful Optimized Stock Printing Container -->
-    <div id="print-stock-area" class="p-6 bg-white text-black leading-relaxed">
-        <div class="text-center border-b-2 border-green-600 pb-4 mb-4">
+    <div id="print-stock-area" class="p-6 bg-white text-black relative leading-relaxed">
+        <div class="print-watermark">AFUMA WATER</div>
+
+        <div class="text-center border-b-2 border-green-600 pb-4 mb-4 relative z-10">
             <h1 id="ps-biz-name" class="text-3xl font-extrabold text-green-700 tracking-wide">نامِ کاروبار</h1>
             <p class="text-sm text-gray-600 mt-1 font-semibold">پروڈکٹ اسٹاک ہسٹری رپورٹ</p>
             
-            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3">
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mt-3 border-t border-dashed border-gray-300 pt-3 font-semibold">
                 <div>
                     <span class="text-gray-500 font-bold block mb-1">پروپرائٹر</span>
                     <span id="ps-owner-name" class="font-semibold text-gray-800 text-sm"></span>
@@ -683,7 +842,7 @@
             </div>
         </div>
         
-        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center">
+        <div class="mb-5 bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm flex justify-between items-center relative z-10">
             <div>
                 <p class="mb-1"><strong>پروڈکٹ کا نام:</strong> <span id="ps-item-name" class="font-bold text-base text-gray-800"></span></p>
                 <p><strong>قیمت فی آئٹم:</strong> <span id="ps-item-price" class="font-semibold text-gray-700"></span></p>
@@ -694,7 +853,7 @@
             </div>
         </div>
 
-        <table class="w-full text-right border-collapse text-xs">
+        <table class="w-full text-right border-collapse text-xs relative z-10">
             <thead>
                 <tr class="bg-green-50 text-green-900 border-b border-gray-300">
                     <th class="p-2 border-b-2 border-gray-300 text-right">تاریخ و وقت</th>
@@ -706,7 +865,7 @@
             <tbody id="ps-table-body" class="divide-y divide-gray-200"></tbody>
         </table>
 
-        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200">
+        <div class="mt-12 flex justify-between items-center px-4 pt-4 border-t border-gray-200 relative z-10">
             <p class="text-[9px] text-gray-400">تیار کردہ بذریعہ جی بھائی کھاتا ایپ</p>
             <div class="text-center">
                 <div class="w-28 border-b border-gray-400 mx-auto mb-1"></div>
@@ -716,7 +875,7 @@
     </div>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 max-w-md mx-auto grid grid-cols-4 text-center py-1.5 shadow-lg z-40 no-print">
+    <nav class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 max-w-md mx-auto grid grid-cols-5 text-center py-1.5 shadow-lg z-40 no-print">
         <button onclick="switchTab('cash')" class="text-red-600 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-cash">
             <i class="fa-solid fa-wallet text-base"></i>
             <span class="text-[10px] font-semibold">کیش بک</span>
@@ -724,6 +883,11 @@
         <button onclick="switchTab('udhar')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-udhar">
             <i class="fa-solid fa-book-open text-base"></i>
             <span class="text-[10px] font-semibold">ادھار بک</span>
+        </button>
+        <!-- Center Chat Group Button (Sale Purchase) -->
+        <button onclick="switchTab('chat')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-chat">
+            <i class="fa-solid fa-comments text-base"></i>
+            <span class="text-[10px] font-semibold">سیل پرچیز</span>
         </button>
         <button onclick="switchTab('stock')" class="text-gray-400 flex flex-col items-center gap-0.5 focus:outline-none" id="nav-stock">
             <i class="fa-solid fa-boxes-stacked text-base"></i>
@@ -754,7 +918,7 @@
     <!-- StyleLink Style Programmatic Translation Trigger -->
     <script>
         window.triggerGoogleTranslate = function(langCode) {
-            window.currentLang = langCode; // <--- Save selected language code globally to track active language
+            window.currentLang = langCode; 
             
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.lang-btn').forEach(b => {
@@ -802,6 +966,8 @@
         let selectedCustomerKey = null;
         let selectedStockItemKey = null;
         let currentCardTemplate = 1;
+        let selectedChatImageBase64 = null;
+        let activeReplyData = null; // Temp holder for reply quotes
 
         // Dynamic Language Dictionary for WhatsApp receipts
         const msgTemplates = {
@@ -862,14 +1028,125 @@
                 qty: "मात्रा",
                 action: "क्रिया",
                 stockIn: "स्टॉक आया (+)",
-                stockOut: "स्टॉक گیا (-)",
-                stockTitle: "जी भाई खाता स्टॉक रसीद"
+                stockOut: "स्टॉक गया (-)",
+                stockTitle: "जी भाई खाता स्टॉक रसीد"
             }
         };
 
+        // Date Custom Formatter to show day/month/year (E.g. 3/7/2026)
+        function formatDateCustom(timestamp) {
+            const d = new Date(timestamp);
+            const day = d.getDate();
+            const month = d.getMonth() + 1; // 0-based index
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Intelligent invisible auto-scanning country code manager
+        function autoFormatPhoneNumber(phone) {
+            if (!phone) return "";
+            
+            // Filter common separating structures
+            let cleaned = phone.trim().replace(/[\s\-\(\)]/g, "");
+            let hasPlus = cleaned.startsWith("+");
+            cleaned = cleaned.replace(/[^0-9]/g, "");
+
+            // If user inputted double zeroes prefix (e.g. 0092...)
+            if (phone.startsWith("00")) {
+                cleaned = cleaned.substring(2);
+                hasPlus = true;
+            }
+
+            // Layer 1: Manual/Explicit input containing prefix
+            if (hasPlus) {
+                return cleaned; 
+            }
+
+            // Layer 2: Check matching explicit country indicators
+            if (cleaned.startsWith("92") && cleaned.length === 12) return cleaned; // PK
+            if (cleaned.startsWith("91") && cleaned.length === 12) return cleaned; // IN
+            if (cleaned.startsWith("966") && cleaned.length === 12) return cleaned; // SA
+            if (cleaned.startsWith("971") && cleaned.length === 12) return cleaned; // AE
+
+            // Layer 3: Dynamic evaluation depending on owner's region or operating lang
+            const bizPhone = localStorage.getItem('gb_bizPhone') || "";
+            const lang = window.currentLang || 'ur';
+
+            let region = "PK"; 
+            if (bizPhone.startsWith("92")) region = "PK";
+            else if (bizPhone.startsWith("91")) region = "IN";
+            else if (bizPhone.startsWith("966")) region = "SA";
+            else if (bizPhone.startsWith("971")) region = "AE";
+            else {
+                if (lang === 'ur') region = "PK";
+                else if (lang === 'hi') region = "IN";
+                else if (lang === 'ar') region = "SA";
+            }
+
+            // Append country code dynamically based on identified region
+            if (region === "PK") {
+                if (cleaned.startsWith("0") && cleaned.length === 11) {
+                    return "92" + cleaned.substring(1);
+                }
+                if (cleaned.startsWith("3") && cleaned.length === 10) {
+                    return "92" + cleaned;
+                }
+            } else if (region === "IN") {
+                if (cleaned.startsWith("0") && cleaned.length === 11) {
+                    return "91" + cleaned.substring(1);
+                }
+                if (cleaned.length === 10 && /^[6-9]/.test(cleaned)) {
+                    return "91" + cleaned;
+                }
+            } else if (region === "SA") {
+                if (cleaned.startsWith("0") && cleaned.length === 10) {
+                    return "966" + cleaned.substring(1);
+                }
+                if (cleaned.startsWith("5") && cleaned.length === 9) {
+                    return "966" + cleaned;
+                }
+            } else if (region === "AE") {
+                if (cleaned.startsWith("0") && cleaned.length === 10) {
+                    return "971" + cleaned.substring(1);
+                }
+                if (cleaned.startsWith("5") && cleaned.length === 9) {
+                    return "971" + cleaned;
+                }
+            }
+
+            return cleaned; 
+        }
+
+        // Date and Time live updater function
+        function startLiveDateTimeUpdater() {
+            function updateDateTime() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = formatDateCustom(now);
+                
+                document.querySelectorAll('.live-time').forEach(el => el.textContent = timeStr);
+                document.querySelectorAll('.live-date').forEach(el => el.textContent = dateStr);
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        }
+
+        // Safe unique node identifier creator for data isolation
+        function getSafeUserKey() {
+            const phone = localStorage.getItem('gb_bizPhone') || '';
+            const email = localStorage.getItem('gb_bizEmail') || '';
+            return getSafeUserKeyFromValues(phone, email);
+        }
+
+        function getSafeUserKeyFromValues(phone, email) {
+            const combined = ((phone || '').trim() + "_" + (email || '').trim()).toLowerCase();
+            return combined.replace(/[\.\#\$\[\]\/@\s]/g, "_");
+        }
+
         window.onload = function() {
             try {
-                window.currentLang = 'ur'; // Set default language tracker
+                window.currentLang = 'ur'; 
+                startLiveDateTimeUpdater();
                 checkUserOnboarding();
                 updateCard();
                 initializeFirebaseListeners();
@@ -921,7 +1198,8 @@
         function saveOnboarding() {
             const biz = document.getElementById('ob-biz-name').value.trim();
             const owner = document.getElementById('ob-owner-name').value.trim();
-            const phone = document.getElementById('ob-biz-phone').value.trim();
+            const rawPhone = document.getElementById('ob-biz-phone').value.trim();
+            const phone = autoFormatPhoneNumber(rawPhone);
             const email = document.getElementById('ob-biz-email').value.trim();
             const pass = document.getElementById('ob-password').value.trim();
 
@@ -929,35 +1207,76 @@
                 return alert("تمام خانے پُر کریں اور پاسورڈ بنائیں!");
             }
 
-            localStorage.setItem('gb_bizName', biz);
-            localStorage.setItem('gb_ownerName', owner);
-            localStorage.setItem('gb_bizPhone', phone);
-            localStorage.setItem('gb_bizEmail', email);
-            localStorage.setItem('gb_password', pass);
-            localStorage.setItem('gb_isLoggedIn', 'true');
+            const userKey = getSafeUserKeyFromValues(phone, email);
 
-            document.getElementById('auth-screen').classList.add('hidden');
-            loadProfileToInputs();
-            updateCard();
+            db.ref('users_credentials/' + userKey).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    alert("اس موبائل نمبر اور جی میل پر پہلے سے اکاؤنٹ موجود ہے۔ براہ کرم لاگ ان کریں۔");
+                    switchAuthTab('login');
+                    return;
+                }
+
+                db.ref('users_credentials/' + userKey).set({
+                    bizName: biz,
+                    ownerName: owner,
+                    bizPhone: phone,
+                    bizEmail: email,
+                    password: pass
+                }).then(() => {
+                    localStorage.setItem('gb_bizName', biz);
+                    localStorage.setItem('gb_ownerName', owner);
+                    localStorage.setItem('gb_bizPhone', phone);
+                    localStorage.setItem('gb_bizEmail', email);
+                    localStorage.setItem('gb_password', pass);
+                    localStorage.setItem('gb_isLoggedIn', 'true');
+
+                    alert("رجسٹریشن مکمل ہو گئی ہے!");
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    loadProfileToInputs();
+                    updateCard();
+                    location.reload(); 
+                }).catch(e => {
+                    alert("رجسٹریشن کے دوران مسئلہ پیش آیا۔ دوبارہ کوشش کریں۔");
+                });
+            });
         }
 
         function performLogin() {
             const enteredName = document.getElementById('login-name').value.trim();
-            const enteredPhone = document.getElementById('login-phone').value.trim();
+            const enteredPhone = autoFormatPhoneNumber(document.getElementById('login-phone').value.trim());
             const enteredPass = document.getElementById('login-pass').value.trim();
 
-            const savedName = localStorage.getItem('gb_ownerName');
-            const savedPhone = localStorage.getItem('gb_bizPhone');
-            const savedPass = localStorage.getItem('gb_password');
-
-            if (enteredName === savedName && enteredPhone === savedPhone && enteredPass === savedPass) {
-                localStorage.setItem('gb_isLoggedIn', 'true');
-                document.getElementById('auth-screen').classList.add('hidden');
-                loadProfileToInputs();
-            } else {
-                alert("نام، موبائل نمبر یا پاسورڈ درست نہیں ہے! دوبارہ کوشش کریں۔");
-                document.getElementById('login-pass').value = '';
+            if (!enteredName || !enteredPhone || !enteredPass) {
+                return alert("تمام خانے پُر کریں!");
             }
+
+            db.ref('users_credentials').once('value').then(snapshot => {
+                let matchedUser = null;
+                snapshot.forEach(child => {
+                    const u = child.val();
+                    if (u.bizPhone === enteredPhone && u.ownerName === enteredName && u.password === enteredPass) {
+                        matchedUser = u;
+                    }
+                });
+
+                if (matchedUser) {
+                    localStorage.setItem('gb_bizName', matchedUser.bizName);
+                    localStorage.setItem('gb_ownerName', matchedUser.ownerName);
+                    localStorage.setItem('gb_bizPhone', matchedUser.bizPhone);
+                    localStorage.setItem('gb_bizEmail', matchedUser.bizEmail);
+                    localStorage.setItem('gb_password', matchedUser.password);
+                    localStorage.setItem('gb_isLoggedIn', 'true');
+
+                    alert("لاگ ان کامیاب رہا!");
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    loadProfileToInputs();
+                    location.reload(); 
+                } else {
+                    alert("درج کردہ معلومات درست نہیں ہیں یا اکاؤنٹ موجود نہیں ہے۔");
+                }
+            }).catch(err => {
+                alert("لاگ ان کے دوران خرابی پیش آئی۔ انٹرنیٹ چیک کریں۔");
+            });
         }
 
         function logoutUser() {
@@ -982,7 +1301,7 @@
         function saveProfileEdit() {
             const biz = document.getElementById('edit-biz-name').value.trim();
             const owner = document.getElementById('edit-owner-name').value.trim();
-            const phone = document.getElementById('edit-biz-phone').value.trim();
+            const phone = autoFormatPhoneNumber(document.getElementById('edit-biz-phone').value.trim());
             const email = document.getElementById('edit-biz-email').value.trim();
             const pass = document.getElementById('edit-password').value.trim();
 
@@ -990,15 +1309,27 @@
                 return alert("تمام خانے پُر کریں!");
             }
 
-            localStorage.setItem('gb_bizName', biz);
-            localStorage.setItem('gb_ownerName', owner);
-            localStorage.setItem('gb_bizPhone', phone);
-            localStorage.setItem('gb_bizEmail', email);
-            localStorage.setItem('gb_password', pass);
+            const userKey = getSafeUserKey();
+            if (!userKey) return;
 
-            alert("معلومات کامیابی سے تبدیل ہو گئی ہیں!");
-            closeProfileModal();
-            updateCard();
+            db.ref('users_credentials/' + userKey).update({
+                bizName: biz,
+                ownerName: owner,
+                bizPhone: phone,
+                bizEmail: email,
+                password: pass
+            }).then(() => {
+                localStorage.setItem('gb_bizName', biz);
+                localStorage.setItem('gb_ownerName', owner);
+                localStorage.setItem('gb_bizPhone', phone);
+                localStorage.setItem('gb_bizEmail', email);
+                localStorage.setItem('gb_password', pass);
+
+                alert("معلومات کامیابی سے تبدیل ہو گئی ہیں!");
+                closeProfileModal();
+                updateCard();
+                location.reload();
+            });
         }
 
         function switchTab(tabId) {
@@ -1013,7 +1344,17 @@
                 const targetTab = document.getElementById(tabId + '-tab');
                 if (targetTab) targetTab.classList.remove('hidden');
 
-                const navButtons = ['cash', 'udhar', 'stock', 'tools'];
+                // Dynamic Header Hider: Hide the top red panel ONLY on Chat page to maximize vertical height
+                const globalHeader = document.querySelector('header');
+                if (globalHeader) {
+                    if (tabId === 'chat') {
+                        globalHeader.classList.add('hidden');
+                    } else {
+                        globalHeader.classList.remove('hidden');
+                    }
+                }
+
+                const navButtons = ['cash', 'udhar', 'chat', 'stock', 'tools'];
                 navButtons.forEach(btn => {
                     const element = document.getElementById('nav-' + btn);
                     if (element) {
@@ -1026,6 +1367,14 @@
                         }
                     }
                 });
+
+                // Auto Scroll chat down on tab switch
+                if (tabId === 'chat') {
+                    setTimeout(() => {
+                        const container = document.getElementById('chat-messages-container');
+                        if(container) container.scrollTop = container.scrollHeight;
+                    }, 200);
+                }
             } catch(e) {
                 console.error("Tab switch error: ", e);
             }
@@ -1052,13 +1401,94 @@
         }
 
         function deleteAccount() {
-            if (confirm("کیا آپ واقعی اپنا اکاؤنٹ اور تمام مقامی ڈیٹا ہمیشہ کے لیے ڈیلیٹ کرنا چاہتے ہیں؟ اسے واپس نہیں لایا جا سکتا۔")) {
-                if (confirm("کیا آپ کو یقین ہے؟ آپ کا تمام مقامی ڈیٹا ڈیوائس سے صاف کر دیا جائے گا۔")) {
-                    localStorage.clear();
-                    alert("آپ کا اکاؤنٹ کامیابی سے لوکل ڈیوائس سے حذف کر دیا گیا ہے۔");
-                    location.reload();
+            if (confirm("کیا آپ واقعی اپنا اکاؤنٹ اور تمام ڈیٹا ہمیشہ کے لیے ڈیلیٹ کرنا چاہتے ہیں؟ اسے واپس نہیں لایا جا سکتا۔")) {
+                const userKey = getSafeUserKey();
+                if (userKey) {
+                    db.ref(`users/${userKey}`).remove();
+                    db.ref(`users_credentials/${userKey}`).remove();
                 }
+                localStorage.clear();
+                alert("آپ کا اکاؤنٹ کامیابی سے حذف کر دیا گیا ہے۔");
+                location.reload();
             }
+        }
+
+        // Complaint Center Submission (Admin support live-chat system)
+        function listenToSupportChat() {
+            const userKey = getSafeUserKey();
+            if (!userKey || userKey === "_") return;
+
+            db.ref(`users_support/${userKey}/messages`).on('value', snapshot => {
+                const box = document.getElementById('support-chat-box');
+                if (!box) return;
+                box.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    box.innerHTML = `<div class="text-center text-gray-400 py-10 text-[10px]">ایڈمن سے لائیو چیٹ شروع کریں۔ اپنی شکایت یا سوال نیچے لکھ کر بھیجیں۔</div>`;
+                    return;
+                }
+
+                snapshot.forEach(child => {
+                    const msg = child.val();
+                    const isAdmin = (msg.sender === 'admin');
+                    const bubbleBg = isAdmin ? 'bg-green-100 text-green-950 mr-auto self-start border-green-200' : 'bg-red-50 text-red-950 ml-auto self-end border-red-100';
+                    const senderName = isAdmin ? 'ایڈمن (Admin)' : 'آپ';
+                    const alignment = isAdmin ? 'items-start text-right' : 'items-end text-right';
+
+                    box.innerHTML += `
+                        <div class="flex flex-col ${alignment} max-w-[85%]">
+                            <span class="text-[8px] text-gray-500 mb-0.5 px-1">${senderName}</span>
+                            <div class="${bubbleBg} border p-2 rounded-xl break-words shadow-sm">
+                                <p class="text-[11px] leading-relaxed">${msg.text}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function submitComplaint() {
+            const text = document.getElementById('complaint-text').value.trim();
+            if (!text) return alert("براہ کرم پہلے اپنا پیغام لکھیں!");
+
+            const userKey = getSafeUserKey();
+            if (!userKey) return alert("لاگ ان ہونا لازمی ہے!");
+
+            const supportMsg = {
+                sender: "user",
+                text: text,
+                timestamp: Date.now()
+            };
+
+            // Push to support chat node
+            db.ref(`users_support/${userKey}/messages`).push(supportMsg).then(() => {
+                // Also update general complaint dashboard for admins to get notified
+                db.ref(`users_complaints/${userKey}`).set({
+                    lastMessage: text,
+                    timestamp: Date.now(),
+                    bizName: localStorage.getItem('gb_bizName') || 'نامعلوم',
+                    bizPhone: localStorage.getItem('gb_bizPhone') || 'نامعلوم',
+                    bizEmail: localStorage.getItem('gb_bizEmail') || 'نامعلوم'
+                });
+
+                document.getElementById('complaint-text').value = '';
+            }).catch(err => {
+                alert("پیغام بھیجنے میں دشواری پیش آئی۔ انٹرنیٹ چیک کریں۔");
+            });
+        }
+
+        function submitWhatsAppComplaint() {
+            const text = document.getElementById('complaint-text').value.trim();
+            const finalMsg = text ? text : "السلام علیکم، مجھے جی بھائی کھاتا ایپ کے متعلق لائیو مدد چاہیے!";
+
+            const bizName = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا ممبر';
+            const bizPhone = localStorage.getItem('gb_bizPhone') || '';
+            const message = `*شکایت برائے جی بھائی کھاتا*\n\n*کاروبار:* ${bizName}\n*فون نمبر:* ${bizPhone}\n*تفصیل:* ${finalMsg}`;
+
+            // Official Modern Web-safe WhatsApp API integration
+            window.location.href = `https://api.whatsapp.com/send?phone=923238833319&text=${encodeURIComponent(message)}`;
         }
 
         const cardStyles = {
@@ -1096,16 +1526,14 @@
             document.getElementById('card-preview-address').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addr}`;
         }
 
-        // --- WebView Stable Compatibility Printing Helper (OPTIMIZED WITH VISUAL POPUP LOADER & 2.5S COMPILE WINDOW) ---
+        // WebView Stable Compatibility Printing Helper
         function executeAppPrint(elementId) {
             const target = document.getElementById(elementId);
             if (!target) return;
 
-            // Show beautiful loading popup
             const loader = document.getElementById('pdf-loader-modal');
             if (loader) loader.classList.remove('hidden');
 
-            // Hide other printable wrappers
             document.querySelectorAll('#print-area, #print-stock-area, #print-card-only, #print-single-receipt, #print-single-stock-receipt').forEach(el => {
                 if (el.id !== elementId) {
                     el.style.setProperty('display', 'none', 'important');
@@ -1116,7 +1544,6 @@
             target.style.setProperty('display', 'block', 'important');
             target.classList.add('print-show');
 
-            // Adjust body parameters for stable WebView rendering
             const body = document.body;
             const originalClasses = body.className;
             body.classList.remove('h-screen', 'overflow-hidden', 'flex', 'flex-col');
@@ -1128,7 +1555,6 @@
                 if (isRestored) return;
                 isRestored = true;
                 
-                // Hide loading popup
                 if (loader) loader.classList.add('hidden');
 
                 body.className = originalClasses;
@@ -1140,13 +1566,9 @@
                 window.removeEventListener('focus', restoreLayout);
             };
 
-            // Restore layout when the user saves/closes the print manager and returns to WebView
             window.addEventListener('focus', restoreLayout);
-
-            // Safer 15 seconds automatic fallback timeout
             setTimeout(restoreLayout, 15000);
 
-            // Generous 2.5 seconds (2500ms) compile window allowing WebView to render perfectly before spooler capture
             setTimeout(() => {
                 try {
                     if (window.AndroidPrint && typeof window.AndroidPrint.printPage === 'function') {
@@ -1178,7 +1600,10 @@
         }
 
         function initializeFirebaseListeners() {
-            db.ref('cashbook').on('value', snapshot => {
+            const userKey = getSafeUserKey();
+            if (!userKey || userKey === "_") return; 
+
+            db.ref(`users/${userKey}/cashbook`).on('value', snapshot => {
                 allTransactions = [];
                 snapshot.forEach(child => {
                     const val = child.val();
@@ -1188,7 +1613,7 @@
                 renderTransactions(allTransactions);
             });
 
-            db.ref('customers').on('value', snapshot => {
+            db.ref(`users/${userKey}/customers`).on('value', snapshot => {
                 allCustomers = [];
                 snapshot.forEach(child => {
                     const val = child.val();
@@ -1198,7 +1623,7 @@
                 renderCustomers(allCustomers);
             });
 
-            db.ref('stock').on('value', snapshot => {
+            db.ref(`users/${userKey}/stock`).on('value', snapshot => {
                 allStockItems = [];
                 snapshot.forEach(child => {
                     const val = child.val();
@@ -1207,14 +1632,293 @@
                 });
                 renderStock(allStockItems);
             });
+
+            // Initialize support real-time chat with Admin
+            listenToSupportChat();
+
+            // Universal Shared Global Chat Listener
+            db.ref('global_chat').limitToLast(60).on('value', snapshot => {
+                const container = document.getElementById('chat-messages-container');
+                if(!container) return;
+                container.innerHTML = '';
+
+                if(!snapshot.exists()) {
+                    container.innerHTML = `<div class="text-center text-xs text-gray-400 py-8">سیل پرچیز پبلک چیٹ روم میں خوش آمدید! گفتگو شروع کرنے کے لیے پیغام لکھیں۔</div>`;
+                    return;
+                }
+
+                const myPhone = localStorage.getItem('gb_bizPhone') || '';
+
+                snapshot.forEach(child => {
+                    const msg = child.val();
+                    const msgKey = child.key;
+                    const isMe = (msg.senderPhone === myPhone);
+                    const formattedDate = formatDateCustom(msg.timestamp || Date.now());
+                    const formattedTime = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    const bubbleBg = isMe ? 'bg-red-50 border-red-100 text-right' : 'bg-white border-gray-100 text-right';
+                    const alignmentClass = isMe ? 'items-start' : 'items-end';
+                    const senderLabel = isMe ? 'آپ' : `${msg.senderOwner} (${msg.senderBiz})`;
+
+                    // Render replied-to/quoted preview if present in payload
+                    let quoteMarkup = '';
+                    if (msg.replyTo) {
+                        quoteMarkup = `
+                            <div class="bg-black/5 border-r-2 border-red-600 p-1.5 rounded-lg text-[10px] mb-1.5 opacity-80 max-w-full text-right leading-snug">
+                                <p class="font-extrabold text-red-700 text-[9px] mb-0.5">${msg.replyTo.sender}</p>
+                                ${msg.replyTo.text ? `<p class="truncate text-gray-700">${msg.replyTo.text}</p>` : ''}
+                                ${msg.replyTo.image ? `<img src="${msg.replyTo.image}" class="h-8 w-8 object-cover rounded mt-0.5 border">` : ''}
+                            </div>
+                        `;
+                    }
+
+                    let imageHtml = '';
+                    if (msg.image) {
+                        // Compact aspect ratio (max-h-44 object-contain) to prevent long vertical images
+                        imageHtml = `<img src="${msg.image}" class="rounded-lg max-w-full h-auto mt-2 border max-h-44 object-contain cursor-pointer shadow-sm bg-gray-50" onclick="openFullImage('${msg.image}')">`;
+                    }
+
+                    // Prepare escaped text elements safely for Quote Trigger
+                    const senderEscaped = senderLabel.replace(/'/g, "\\'");
+                    const textEscaped = (msg.text || "").replace(/'/g, "\\'").replace(/\n/g, " ");
+                    const imgEscaped = (msg.image || "").replace(/'/g, "\\'");
+
+                   
+                  
+                  
+                  
+                  container.innerHTML += `
+                <div class="flex flex-col ${alignmentClass} w-full space-y-1">
+                    <span class="text-[9px] text-gray-500 font-bold px-1">${senderLabel}</span>
+                    <div class="${bubbleBg} border p-3 rounded-2xl max-w-[85%] shadow-sm relative leading-relaxed">
+                        ${quoteMarkup}
+                        ${msg.text ? `<p class="text-xs text-gray-800 whitespace-pre-wrap">${msg.text}</p>` : ''}
+                        ${imageHtml}
+                        <div class="flex justify-between items-center gap-4 mt-1.5 pt-1 border-t border-dashed border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <button onclick="setQuoteReply('${senderEscaped}', '${textEscaped}', '${imgEscaped}')" class="text-[9px] text-red-600 font-bold hover:text-red-800 transition flex items-center gap-0.5">
+                                    <i class="fa-solid fa-reply"></i> جواب دیں
+                                </button>
+                                ${isMe ? `
+                                    <button onclick="deleteChatMessage('${msgKey}', event)" class="text-[9px] text-red-500 font-bold hover:text-red-700 transition flex items-center gap-0.5 ml-2">
+                                        <i class="fa-solid fa-trash-can"></i> حذف کریں
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <span class="text-[8px] text-gray-400 font-mono">${formattedTime} - ${formattedDate}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight;
+        }, 100);
+            
+                  
+  
+                    
+      
+                         
+
+              
+              
+              
+              
+              
+              
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 100);
+            });
         }
 
+        // --- GLOBAL CHAT FUNCTIONS ---
+        function triggerChatFileInput() {
+            document.getElementById('chat-file-input').click();
+        }
+
+        function handleChatFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Compress dynamically using HTML5 Canvas to handle any MB/Size
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 800; // max width/height dimension
+
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert to web optimized jpeg string
+                    selectedChatImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+                    document.getElementById('chat-image-preview-el').src = selectedChatImageBase64;
+                    document.getElementById('chat-image-preview-box').classList.remove('hidden');
+                    document.getElementById('chat-image-name').textContent = file.name;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function cancelSelectedChatImage() {
+            selectedChatImageBase64 = null;
+            document.getElementById('chat-file-input').value = '';
+            document.getElementById('chat-image-preview-box').classList.add('hidden');
+        }
+
+        // Quote reply settings
+        function setQuoteReply(sender, text, img) {
+            activeReplyData = { sender: sender, text: text, image: img };
+            
+            document.getElementById('reply-preview-sender').textContent = sender;
+            document.getElementById('reply-preview-text').textContent = text || (img ? "تصویر فائل" : "");
+            
+            const previewImg = document.getElementById('reply-preview-img');
+            if (img) {
+                previewImg.src = img;
+                previewImg.classList.remove('hidden');
+            } else {
+                previewImg.classList.add('hidden');
+            }
+
+            document.getElementById('chat-reply-preview-box').classList.remove('hidden');
+            document.getElementById('chat-text-input').focus();
+        }
+
+        function cancelReply() {
+            activeReplyData = null;
+            document.getElementById('chat-reply-preview-box').classList.add('hidden');
+        }
+
+        
+
+           
+
+         
+        
+
+    // Imgbb پر تصویر بھیجنے کا لاجک
+async function uploadImageToImgbb(base64Image) {
+    const apiKey = "66dcdf21e30733bfd85545d9fb5e76c4";
+    const base64Data = base64Image.split(',')[1];
+    const formData = new FormData();
+    formData.append("image", base64Data);
+    try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: "POST",
+            body: formData
+        });
+        const result = await response.json();
+        return result.success ? result.data.url : null;
+    } catch (error) {
+        console.error("Imgbb Error:", error);
+        return null;
+    }
+}
+
+// اصلی تبدیل شدہ چیٹ میسج فنکشن
+async function sendChatMessage() {
+    const text = document.getElementById('chat-text-input').value.trim();
+
+    if (!text && !selectedChatImageBase64) {
+        return alert("براہ کرم کوئی پیغام لکھیں یا تصویر منتخب کریں!");
+    }
+
+    let imageUrl = null;
+
+    if (selectedChatImageBase64) {
+        imageUrl = await uploadImageToImgbb(selectedChatImageBase64);
+        if (!imageUrl) {
+            return alert("تصویر اپلوڈ کرنے میں ناکامی! دوبارہ کوشش کریں۔");
+        }
+    }
+
+    const bizName = localStorage.getItem('gb_bizName') || 'نامعلوم کاروبار';
+    const ownerName = localStorage.getItem('gb_ownerName') || 'مہمان صارف';
+    const phone = localStorage.getItem('gb_bizPhone') || '0000';
+
+    const payload = {
+        senderBiz: bizName,
+        senderOwner: ownerName,
+        senderPhone: phone,
+        text: text || null,
+        image: imageUrl, 
+        replyTo: activeReplyData || null, 
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    db.ref('global_chat').push(payload).then(() => {
+        document.getElementById('chat-text-input').value = '';
+        cancelSelectedChatImage();
+        cancelReply();
+    }).catch(e => {
+        alert("گفتگو بھیجنے میں خرابی پیش آئی۔ براہ کرم دوبارہ کوشش کریں!");
+    });
+}
+
+        
+
+            
+      
+      
+      
+      
+
+        function openFullImage(src) {
+            let previewModal = document.getElementById('chat-image-modal');
+            if(!previewModal) {
+                previewModal = document.createElement('div');
+                previewModal.id = 'chat-image-modal';
+                previewModal.className = 'fixed inset-0 bg-black/95 z-[999] hidden flex items-center justify-center p-4';
+                previewModal.innerHTML = `
+                    <div class="relative max-w-full max-h-full flex items-center justify-center">
+                        <button onclick="document.getElementById('chat-image-modal').classList.add('hidden')" class="absolute top-4 right-4 text-white bg-black/50 p-2.5 rounded-full hover:bg-black/80 transition">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                        <img id="chat-modal-img" src="" class="max-w-full max-h-[90vh] object-contain rounded">
+                    </div>
+                `;
+                document.body.appendChild(previewModal);
+            }
+            document.getElementById('chat-modal-img').src = src;
+            previewModal.classList.remove('hidden');
+        }
+
+        // --- EXISTING UTILITY OPERATIONS ---
         function addCashTransaction(type) {
             const amount = parseFloat(document.getElementById('cash-amount').value);
             const details = document.getElementById('cash-details').value;
-            const phone = document.getElementById('cash-phone').value || "کوئی نمبر نہیں";
+            const rawPhone = document.getElementById('cash-phone').value || "";
+            // Instant invisible country code formatting
+            const phone = rawPhone ? autoFormatPhoneNumber(rawPhone) : "کوئی نمبر نہیں";
 
             if (!amount || amount <= 0) return alert("درست رقم درج کریں!");
+
+            const userKey = getSafeUserKey();
+            if (!userKey) return alert("پہلے لاگ ان کریں!");
 
             const transaction = {
                 amount: amount,
@@ -1224,17 +1928,19 @@
                 timestamp: Date.now()
             };
 
-            db.ref('cashbook').push(transaction).then(() => {
+            db.ref(`users/${userKey}/cashbook`).push(transaction).then(() => {
                 document.getElementById('cash-amount').value = '';
                 document.getElementById('cash-details').value = '';
                 document.getElementById('cash-phone').value = '';
             });
         }
 
+        // Cash Book, Udhar Book & Stock Book existing rendering logics unchanged
         function deleteCashTransaction(key, event) {
             event.stopPropagation();
             if (confirm("کیا آپ واقعی یہ کیش انٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
-                db.ref(`cashbook/${key}`).remove();
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/cashbook/${key}`).remove();
             }
         }
 
@@ -1257,6 +1963,7 @@
 
                 const label = val.type === 'in' ? 'کیش ان' : 'کیش آؤٹ';
                 const color = val.type === 'in' ? 'text-green-600' : 'text-red-600';
+                const formattedDate = formatDateCustom(val.timestamp);
 
                 list.innerHTML += `
                     <div onclick="openReceipt('${val.key}')" class="flex justify-between items-center py-2 px-2 rounded hover:bg-gray-50 transition border-b border-gray-100 cursor-pointer">
@@ -1267,7 +1974,7 @@
                             <div>
                                 <p class="font-bold text-gray-800">${val.details}</p>
                                 <span class="text-[10px] text-gray-500 block">نمبر: ${val.phone}</span>
-                                <span class="text-[9px] text-gray-400">${new Date(val.timestamp).toLocaleDateString()}</span>
+                                <span class="text-[9px] text-gray-400">${formattedDate}</span>
                             </div>
                         </div>
                         <div class="text-right text-xs">
@@ -1286,7 +1993,7 @@
         function filterTransactions() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filtered = allTransactions.filter(item => {
-                const dateStr = new Date(item.timestamp).toLocaleDateString().toLowerCase();
+                const dateStr = formatDateCustom(item.timestamp).toLowerCase();
                 const phoneStr = item.phone.toLowerCase();
                 const detailsStr = item.details.toLowerCase();
                 return dateStr.includes(query) || phoneStr.includes(query) || detailsStr.includes(query);
@@ -1295,30 +2002,37 @@
         }
 
         function addCustomer() {
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
+            const name = document.getElementById('cust-name').value.trim();
+            const rawPhone = document.getElementById('cust-phone').value.trim();
 
             if (!name) return alert("نام لکھیں!");
+            if (!rawPhone) return alert("موبائل نمبر لکھنا لازمی ہے!");
+
+            // High-speed automatic country code scanner
+            const finalPhone = autoFormatPhoneNumber(rawPhone);
+
+            const userKey = getSafeUserKey();
+            if (!userKey) return alert("پہلے لاگ ان کریں!");
 
             const customer = {
                 name: name,
-                phone: phone || "کوئی نمبر نہیں",
+                phone: finalPhone,
                 balance: 0,
                 timestamp: Date.now()
             };
 
-            db.ref('customers').push(customer).then(() => {
+            db.ref(`users/${userKey}/customers`).push(customer).then(() => {
                 document.getElementById('cust-name').value = '';
                 document.getElementById('cust-phone').value = '';
             });
         }
 
-        // --- CASCADING DELETE CUSTOMER (DELETE LEDGERS ENTRIES TOO) ---
         function deleteCustomer(key, event) {
             event.stopPropagation();
             if (confirm("کیا آپ اس گاہک کا پورا کھاتا اور تمام ہسٹری ڈیلیٹ کرنا چاہتے ہیں؟")) {
-                db.ref(`customers/${key}`).remove();
-                db.ref(`ledgers/${key}`).remove();
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/customers/${key}`).remove();
+                db.ref(`users/${userKey}/ledgers/${key}`).remove();
                 closeLedgerPage();
             }
         }
@@ -1329,7 +2043,7 @@
             list.innerHTML = '';
 
             data.forEach(val => {
-                const dObj = new Date(val.timestamp || Date.now());
+                const formattedDate = formatDateCustom(val.timestamp || Date.now());
                 const balColor = val.balance >= 0 ? 'text-green-600' : 'text-red-600';
                 const statusText = val.balance >= 0 ? 'ملیں گے' : 'دینے ہیں';
 
@@ -1340,7 +2054,7 @@
                                 <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
                                 <p class="text-[10px] text-gray-500">${val.phone}</p>
                                 <p class="text-[9px] text-gray-400 mt-0.5">
-                                    شامل کیا: ${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}
+                                    شامل کیا: ${formattedDate}
                                 </p>
                             </div>
                             <div class="text-right">
@@ -1369,7 +2083,6 @@
             renderCustomers(filtered);
         }
 
-        // --- OPEN LEDGER PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openLedgerPage(customerKey) {
             selectedCustomerKey = customerKey;
             document.getElementById('ledger-page').classList.remove('hidden');
@@ -1378,8 +2091,9 @@
 
         function closeLedgerPage() {
             if (selectedCustomerKey) {
-                db.ref(`customers/${selectedCustomerKey}`).off();
-                db.ref(`ledgers/${selectedCustomerKey}`).off();
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/customers/${selectedCustomerKey}`).off();
+                db.ref(`users/${userKey}/ledgers/${selectedCustomerKey}`).off();
             }
             const ledgerPage = document.getElementById('ledger-page');
             if (ledgerPage) ledgerPage.classList.add('hidden');
@@ -1388,11 +2102,12 @@
 
         function loadLedgerData() {
             if (!selectedCustomerKey) return;
+            const userKey = getSafeUserKey();
 
-            db.ref(`customers/${selectedCustomerKey}`).off();
-            db.ref(`ledgers/${selectedCustomerKey}`).off();
+            db.ref(`users/${userKey}/customers/${selectedCustomerKey}`).off();
+            db.ref(`users/${userKey}/ledgers/${selectedCustomerKey}`).off();
 
-            db.ref(`customers/${selectedCustomerKey}`).on('value', snapshot => {
+            db.ref(`users/${userKey}/customers/${selectedCustomerKey}`).on('value', snapshot => {
                 const val = snapshot.val();
                 if (!val) return;
 
@@ -1405,7 +2120,7 @@
                 document.getElementById('led-cust-balance').className = `text-lg font-bold ${val.balance >= 0 ? 'text-green-600' : 'text-red-600'}`;
             });
 
-            db.ref(`ledgers/${selectedCustomerKey}`).on('value', snapshot => {
+            db.ref(`users/${userKey}/ledgers/${selectedCustomerKey}`).on('value', snapshot => {
                 const list = document.getElementById('ledger-list');
                 if(!list) return;
                 list.innerHTML = '';
@@ -1413,7 +2128,7 @@
                 snapshot.forEach(child => {
                     const lKey = child.key;
                     const val = child.val();
-                    const dObj = new Date(val.timestamp);
+                    const formattedDate = formatDateCustom(val.timestamp);
 
                     const typeText = val.type === 'give' ? 'ادھار دیا (-)' : 'وصول کیا (+)';
                     const typeColor = val.type === 'give' ? 'text-red-600' : 'text-green-600';
@@ -1424,7 +2139,7 @@
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h5 class="font-bold text-gray-800">${val.details}</h5>
-                                    <p class="text-[9px] text-gray-400">${dObj.toLocaleDateString()} | ${dObj.toLocaleTimeString()}</p>
+                                    <p class="text-[9px] text-gray-400">${formattedDate}</p>
                                 </div>
                                 <div class="text-right">
                                     <span class="${typeColor} font-bold text-sm">${val.amount} روپے</span>
@@ -1454,6 +2169,9 @@
 
             if (!amount || amount <= 0) return alert("رقم لکھیں!");
 
+            const userKey = getSafeUserKey();
+            if (!userKey) return;
+
             const entry = {
                 amount: amount,
                 details: details || "بغیر نام حساب",
@@ -1461,8 +2179,8 @@
                 timestamp: Date.now()
             };
 
-            db.ref(`ledgers/${selectedCustomerKey}`).push(entry).then(() => {
-                const custRef = db.ref(`customers/${selectedCustomerKey}`);
+            db.ref(`users/${userKey}/ledgers/${selectedCustomerKey}`).push(entry).then(() => {
+                const custRef = db.ref(`users/${userKey}/customers/${selectedCustomerKey}`);
                 custRef.once('value').then(snap => {
                     const curBal = snap.val().balance || 0;
                     let newBal = curBal;
@@ -1481,8 +2199,9 @@
 
         function deleteLedgerEntry(entryKey, amount, type) {
             if (confirm("کیا آپ واقعی یہ انٹری ہسٹری سے ڈیلیٹ کرنا چاہتے ہیں؟")) {
-                db.ref(`ledgers/${selectedCustomerKey}/${entryKey}`).remove().then(() => {
-                    const custRef = db.ref(`customers/${selectedCustomerKey}`);
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/ledgers/${selectedCustomerKey}/${entryKey}`).remove().then(() => {
+                    const custRef = db.ref(`users/${userKey}/customers/${selectedCustomerKey}`);
                     custRef.once('value').then(snap => {
                         const curBal = snap.val().balance || 0;
                         let newBal = curBal;
@@ -1497,54 +2216,116 @@
             }
         }
 
-        // Helper to format local numbers to WhatsApp acceptable format
-        function formatPhoneForWhatsApp(phone) {
-            if (!phone) return "";
-            let cleaned = phone.replace(/[^0-9]/g, ""); // Keep only numbers
-            
-            if (cleaned.startsWith("00")) {
-                cleaned = cleaned.substring(2);
-            }
-            if (cleaned.startsWith("0") && cleaned.length === 11) {
-                cleaned = "92" + cleaned.substring(1);
-            }
-            if (cleaned.length === 10 && cleaned.startsWith("3")) {
-                cleaned = "92" + cleaned;
-            }
-            return cleaned;
+      
+      
+      
+      
+      
+    // چیٹ گروپ سے پیغام ہمیشہ کے لیے حذف کرنے کا فنکشن
+function deleteChatMessage(messageKey, event) {
+    if (event) event.stopPropagation();
+    
+    if (confirm("کیا آپ واقعی یہ پیغام/تصویر چیٹ گروپ سے حذف کرنا چاہتے ہیں؟")) {
+        db.ref(`global_chat/${messageKey}`).remove()
+        .catch(error => {
+            alert("پیغام حذف کرنے میں دشواری پیش آئی۔ انٹرنیٹ چیک کریں۔");
+            console.error("Chat delete error:", error);
+        });
+    }
+}
+
+    
+        
+function shareLedgerWhatsApp(details, amount, type, timestamp) {
+    const formattedDate = formatDateCustom(timestamp);
+    const lang = window.currentLang || 'ur';
+    const t = msgTemplates[lang] || msgTemplates['ur'];
+
+    const typeText = type === 'give' ? t.give : t.receive;
+    const currencyLabel = (lang === 'ur' || lang === 'ar' || lang === 'hi') ? 'روپے' : 'Rs.';
+    const message = `*${t.title}*\n----------------------------\n*${t.details}:* ${details}\n*${t.amount}:* ${amount} ${currencyLabel}\n*${t.type}:* ${typeText}\n*${t.date}:* ${formattedDate}\n----------------------------\n${t.thanks}`;
+    
+    let phoneNum = "";
+    
+    if (selectedCustomerKey) {
+        const customer = allCustomers.find(c => c.key === selectedCustomerKey);
+        if (customer && customer.phone) {
+            phoneNum = customer.phone.trim();
+        }
+    } else {
+        const currentPhoneInput = document.getElementById('led-cust-phone');
+        if (currentPhoneInput) {
+            phoneNum = currentPhoneInput.textContent.trim();
+        }
+    }
+
+    if (phoneNum) {
+        // صرف ہندسے باقی رکھنا (ڈیش، پلس یا بریکٹ ختم کرنا)
+        phoneNum = phoneNum.replace(/[^0-9]/g, "");
+
+        // --- پاکستان، سعودی عرب اور انڈیا کے لیے آٹو ڈیٹیکشن لاجک ---
+
+        // 1. سعودی عرب (SAUDI ARABIA)
+        // اگر نمبر 05 سے شروع ہو اور کل 10 ہندسے ہوں (مثال: 0590013450)
+        if (phoneNum.startsWith("05") && phoneNum.length === 10) {
+            phoneNum = "966" + phoneNum.substring(1);
+        }
+        // اگر بغیر زیرو کے صرف 5 سے شروع ہو اور 9 ہندسے ہوں (مثال: 590013450)
+        else if (phoneNum.startsWith("5") && phoneNum.length === 9) {
+            phoneNum = "966" + phoneNum;
         }
 
-        // --- DIRECT DYNAMIC WHATSAPP INTENT DISPATCHER (DYNAMIC MULTI-LANGUAGE FIXED) ---
-        function shareLedgerWhatsApp(details, amount, type, timestamp) {
-            const dObj = new Date(timestamp);
-            const lang = window.currentLang || 'ur';
-            const t = msgTemplates[lang] || msgTemplates['ur'];
-
-            const typeText = type === 'give' ? t.give : t.receive;
-            const currencyLabel = (lang === 'ur' || lang === 'ar' || lang === 'hi') ? 'روپے' : 'Rs.';
-            const message = `*${t.title}*\n----------------------------\n*${t.details}:* ${details}\n*${t.amount}:* ${amount} ${currencyLabel}\n*${t.type}:* ${typeText}\n*${t.date}:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\n${t.thanks}`;
-            
-            let phoneNum = "";
-            if (selectedCustomerKey) {
-                const customer = allCustomers.find(c => c.key === selectedCustomerKey);
-                if (customer && customer.phone) {
-                    phoneNum = formatPhoneForWhatsApp(customer.phone);
-                }
-            }
-
-            // Direct intent dispatching
-            if (phoneNum) {
-                window.location.href = `whatsapp://send?phone=${phoneNum}&text=${encodeURIComponent(message)}`;
-            } else {
-                window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
-            }
+        // 2. پاکستان (PAKISTAN)
+        // 如果 نمبر 03 سے شروع ہو اور کل 11 ہندسے ہوں (مثال: 03238833319)
+        else if (phoneNum.startsWith("03") && phoneNum.length === 11) {
+            phoneNum = "92" + phoneNum.substring(1);
         }
+        // اگر بغیر زیرو کے صرف 3 سے شروع ہو اور 10 ہندسے ہوں (مثال: 3238833319)
+        else if (phoneNum.startsWith("3") && phoneNum.length === 10) {
+            phoneNum = "92" + phoneNum;
+        }
+
+        // 3. انڈیا (INDIA)
+        // انڈین نمبرز عام طور پر 6, 7, 8, یا 9 سے شروع ہوتے ہیں اور 10 ہندسے کے ہوتے ہیں
+        else if (phoneNum.length === 10 && /^[6-9]/.test(phoneNum)) {
+            phoneNum = "91" + phoneNum;
+        }
+        // اگر کسی نے انڈین نمبر کے آگے 0 لگایا ہو (مثال: 0987654321) اور کل 11 ہندسے ہوں
+        else if (phoneNum.startsWith("0") && phoneNum.length === 11 && /^[6-9]/.test(phoneNum.substring(1))) {
+            phoneNum = "91" + phoneNum.substring(1);
+        }
+
+        // 4. اگر پہلے سے کنٹری کوڈ لگا ہوا ہو (92، 966، یا 91) تو کوڈ اسے نہیں چھیڑے گا
+
+        // واٹس ایپ ڈائریکٹ اوپن کرنے کا لنک
+        window.location.href = `https://api.whatsapp.com/send?phone=${phoneNum}&text=${encodeURIComponent(message)}`;
+    } else {
+        window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    }
+}
+
+        
+                
+            
+
+        
+            
+            
+
+            
+      
+      
+      
+      
+      
 
         function generateCustomerReport(customerKey, event) {
             if (event) event.stopPropagation();
 
             const customer = allCustomers.find(c => c.key === customerKey);
             if (!customer) return;
+
+            const userKey = getSafeUserKey();
 
             document.getElementById('p-biz-name').textContent = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
             document.getElementById('p-owner-name').textContent = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
@@ -1566,7 +2347,7 @@
             document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.remove('print-show');
 
-            db.ref(`ledgers/${customerKey}`).once('value', snapshot => {
+            db.ref(`users/${userKey}/ledgers/${customerKey}`).once('value', snapshot => {
                 tableBody.innerHTML = '';
                 if (!snapshot.exists()) {
                     tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
@@ -1576,8 +2357,7 @@
 
                 snapshot.forEach(child => {
                     const val = child.val();
-                    const dObj = new Date(val.timestamp);
-                    const formattedDate = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+                    const formattedDate = formatDateCustom(val.timestamp);
                     const typeText = val.type === 'give' ? 'دیا ادھار' : 'وصول رقم';
                     const alignmentClass = val.type === 'give' ? 'text-red-600' : 'text-green-600';
 
@@ -1619,8 +2399,8 @@
                 document.getElementById('psr-cust-phone').textContent = "-";
             }
 
-            const dObj = new Date(timestamp);
-            document.getElementById('psr-date').textContent = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+            const formattedDate = formatDateCustom(timestamp);
+            document.getElementById('psr-date').textContent = formattedDate;
             document.getElementById('psr-details').textContent = details;
             
             const typeText = (type === 'give' || type === 'out') ? 'دیا ادھار (-)' : 'وصول کیا (+)';
@@ -1657,8 +2437,8 @@
             document.getElementById('pssr-item-name').textContent = item.name;
             document.getElementById('pssr-item-price').textContent = `${item.price} روپے`;
 
-            const dObj = new Date(timestamp);
-            document.getElementById('pssr-date').textContent = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+            const formattedDate = formatDateCustom(timestamp);
+            document.getElementById('pssr-date').textContent = formattedDate;
             document.getElementById('pssr-details').textContent = details;
 
             const typeText = type === 'in' ? 'اسٹاک داخل (+)' : 'اسٹاک خارج (-)';
@@ -1683,6 +2463,9 @@
 
             if (!name) return alert("پروڈکٹ کا نام لکھنا لازمی ہے!");
 
+            const userKey = getSafeUserKey();
+            if (!userKey) return;
+
             const item = {
                 name: name,
                 qty: qty,
@@ -1690,19 +2473,19 @@
                 timestamp: Date.now()
             };
 
-            db.ref('stock').push(item).then(() => {
+            db.ref(`users/${userKey}/stock`).push(item).then(() => {
                 document.getElementById('item-name').value = '';
                 document.getElementById('item-qty').value = '';
                 document.getElementById('item-price').value = '';
             });
         }
 
-        // --- CASCADE DELETE STOCK ITEM (CASCADE STOCKS RESTORATION FIX) ---
         function deleteStockItem(key, event) {
             event.stopPropagation();
             if (confirm("کیا آپ واقعی یہ پروڈکٹ اسٹاک سے مستقل طور پر حذف کرنا چاہتے ہیں؟")) {
-                db.ref(`stock/${key}`).remove();
-                db.ref(`stock_ledgers/${key}`).remove();
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/stock/${key}`).remove();
+                db.ref(`users/${userKey}/stock_ledgers/${key}`).remove();
                 closeStockDetailPage();
             }
         }
@@ -1713,7 +2496,7 @@
             list.innerHTML = '';
 
             data.forEach(val => {
-                const dObj = new Date(val.timestamp || Date.now());
+                const formattedDate = formatDateCustom(val.timestamp || Date.now());
 
                 list.innerHTML += `
                     <div onclick="openStockDetailPage('${val.key}')" class="border p-2 rounded-lg bg-white shadow-sm space-y-1 cursor-pointer hover:bg-gray-50 transition relative">
@@ -1722,7 +2505,7 @@
                                 <h4 class="font-bold text-gray-800 text-sm">${val.name}</h4>
                                 <p class="text-[10px] text-gray-500">قیمت: ${val.price} روپے</p>
                                 <p class="text-[9px] text-gray-400 mt-0.5">
-                                    شامل کیا: ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}
+                                    شامل کیا: ${formattedDate}
                                 </p>
                             </div>
                             <div class="text-right">
@@ -1751,7 +2534,6 @@
             renderStock(filtered);
         }
 
-        // --- OPEN STOCK DETAIL PAGE (Z-INDEX 50 IN CSS COVERS APP HEADER) ---
         function openStockDetailPage(itemKey) {
             selectedStockItemKey = itemKey;
             document.getElementById('stock-detail-page').classList.remove('hidden');
@@ -1760,8 +2542,9 @@
 
         function closeStockDetailPage() {
             if (selectedStockItemKey) {
-                db.ref(`stock/${selectedStockItemKey}`).off();
-                db.ref(`stock_ledgers/${selectedStockItemKey}`).off();
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/stock/${selectedStockItemKey}`).off();
+                db.ref(`users/${userKey}/stock_ledgers/${selectedStockItemKey}`).off();
             }
             const stockDetailPage = document.getElementById('stock-detail-page');
             if (stockDetailPage) stockDetailPage.classList.add('hidden');
@@ -1770,11 +2553,12 @@
 
         function loadStockLedgerData() {
             if (!selectedStockItemKey) return;
+            const userKey = getSafeUserKey();
 
-            db.ref(`stock/${selectedStockItemKey}`).off();
-            db.ref(`stock_ledgers/${selectedStockItemKey}`).off();
+            db.ref(`users/${userKey}/stock/${selectedStockItemKey}`).off();
+            db.ref(`users/${userKey}/stock_ledgers/${selectedStockItemKey}`).off();
 
-            db.ref(`stock/${selectedStockItemKey}`).on('value', snapshot => {
+            db.ref(`users/${userKey}/stock/${selectedStockItemKey}`).on('value', snapshot => {
                 const val = snapshot.val();
                 if (!val) return;
 
@@ -1783,7 +2567,7 @@
                 document.getElementById('st-item-qty').textContent = `${val.qty} عدد`;
             });
 
-            db.ref(`stock_ledgers/${selectedStockItemKey}`).on('value', snapshot => {
+            db.ref(`users/${userKey}/stock_ledgers/${selectedStockItemKey}`).on('value', snapshot => {
                 const list = document.getElementById('stock-ledger-list');
                 if(!list) return;
                 list.innerHTML = '';
@@ -1791,7 +2575,7 @@
                 snapshot.forEach(child => {
                     const lKey = child.key;
                     const val = child.val();
-                    const dObj = new Date(val.timestamp);
+                    const formattedDate = formatDateCustom(val.timestamp);
 
                     const typeText = val.type === 'in' ? 'اسٹاک آیا (+)' : 'اسٹاک گیا (-)';
                     const typeColor = val.type === 'in' ? 'text-green-600' : 'text-red-600';
@@ -1802,7 +2586,7 @@
                             <div class="flex justify-between items-center">
                                 <div>
                                     <h5 class="font-bold text-gray-800">${val.details}</h5>
-                                    <p class="text-[9px] text-gray-400">${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}</p>
+                                    <p class="text-[9px] text-gray-400">${formattedDate}</p>
                                 </div>
                                 <div class="text-right">
                                     <span class="${typeColor} font-bold text-lg">${val.qty} عدد</span>
@@ -1832,6 +2616,9 @@
 
             if (!qty || qty <= 0) return alert("درست تعداد لکھیں!");
 
+            const userKey = getSafeUserKey();
+            if (!userKey) return;
+
             const entry = {
                 qty: qty,
                 details: details || "بغیر نام ٹرانزیکشن",
@@ -1839,8 +2626,8 @@
                 timestamp: Date.now()
             };
 
-            db.ref(`stock_ledgers/${selectedStockItemKey}`).push(entry).then(() => {
-                const itemRef = db.ref(`stock/${selectedStockItemKey}`);
+            db.ref(`users/${userKey}/stock_ledgers/${selectedStockItemKey}`).push(entry).then(() => {
+                const itemRef = db.ref(`users/${userKey}/stock/${selectedStockItemKey}`);
                 itemRef.once('value').then(snap => {
                     const currentQty = snap.val().qty || 0;
                     let newQty = currentQty;
@@ -1857,23 +2644,22 @@
             });
         }
 
-        // --- DIRECT DYNAMIC WHATSAPP INTENT DISPATCHER FOR STOCK (FIXED) ---
         function shareStockLedgerWhatsApp(details, qty, type, timestamp) {
-            const dObj = new Date(timestamp);
+            const formattedDate = formatDateCustom(timestamp);
             const lang = window.currentLang || 'ur';
             const t = msgTemplates[lang] || msgTemplates['ur'];
 
             const typeText = type === 'in' ? t.stockIn : t.stockOut;
-            const message = `*${t.stockTitle}*\n----------------------------\n*${t.details}:* ${details}\n*${t.qty}:* ${qty}\n*${t.action}:* ${typeText}\n*${t.date}:* ${dObj.toLocaleDateString()} || ${dObj.toLocaleTimeString()}\n----------------------------\n${t.thanks}`;
+            const message = `*${t.stockTitle}*\n----------------------------\n*${t.details}:* ${details}\n*${t.qty}:* ${qty}\n*${t.action}:* ${typeText}\n*${t.date}:* ${formattedDate}\n----------------------------\n${t.thanks}`;
             
-            window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
+            window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
         }
 
-        // --- DYNAMIC QUANTITY SUBTRACTION ON DELETE ---
         function deleteStockLedgerEntry(entryKey, qty, type) {
             if (confirm("کیا آپ واقعی یہ انٹری اسٹاک ہسٹری سے خارج کرنا چاہتے ہیں؟")) {
-                db.ref(`stock_ledgers/${selectedStockItemKey}/${entryKey}`).remove().then(() => {
-                    const itemRef = db.ref(`stock/${selectedStockItemKey}`);
+                const userKey = getSafeUserKey();
+                db.ref(`users/${userKey}/stock_ledgers/${selectedStockItemKey}/${entryKey}`).remove().then(() => {
+                    const itemRef = db.ref(`users/${userKey}/stock/${selectedStockItemKey}`);
                     itemRef.once('value').then(snap => {
                         const currentQty = snap.val().qty || 0;
                         let newQty = currentQty;
@@ -1894,6 +2680,8 @@
             const item = allStockItems.find(s => s.key === itemKey);
             if (!item) return;
 
+            const userKey = getSafeUserKey();
+
             document.getElementById('ps-biz-name').textContent = localStorage.getItem('gb_bizName') || 'جی بھائی کھاتا';
             document.getElementById('ps-owner-name').textContent = localStorage.getItem('gb_ownerName') || 'پروپرائٹر';
             document.getElementById('ps-biz-phone').textContent = localStorage.getItem('gb_bizPhone') || 'نمبر';
@@ -1901,7 +2689,7 @@
             document.getElementById('ps-item-name').textContent = item.name;
             document.getElementById('ps-item-price').textContent = `${item.price} روپے`;
             document.getElementById('ps-item-qty').textContent = `${item.qty} عدد`;
-            document.getElementById('ps-report-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('ps-report-date').textContent = formatDateCustom(Date.now());
 
             const tableBody = document.getElementById('ps-table-body');
             tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">لوڈنگ ہو رہی ہے...</td></tr>';
@@ -1912,7 +2700,7 @@
             document.getElementById('print-single-stock-receipt').classList.remove('print-show');
             document.getElementById('print-card-only').classList.remove('print-show');
 
-            db.ref(`stock_ledgers/${itemKey}`).once('value', snapshot => {
+            db.ref(`users/${userKey}/stock_ledgers/${itemKey}`).once('value', snapshot => {
                 tableBody.innerHTML = '';
                 if (!snapshot.exists()) {
                     tableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4 text-gray-500">کوئی ریکارڈ نہیں ملا۔</td></tr>';
@@ -1922,8 +2710,7 @@
 
                 snapshot.forEach(child => {
                     const val = child.val();
-                    const dObj = new Date(val.timestamp);
-                    const formattedDate = `${dObj.toLocaleDateString()} ${dObj.toLocaleTimeString()}`;
+                    const formattedDate = formatDateCustom(val.timestamp);
                     const typeText = val.type === 'in' ? 'اسٹاک داخل' : 'اسٹاک خارج';
                     const alignmentClass = val.type === 'in' ? 'text-green-600' : 'text-red-600';
 
@@ -1956,74 +2743,60 @@
                 document.getElementById('calc-screen').value = 'Error';
             }
         }
+    </script>
       
-   
-  </script>
-      
+    <style>
+        html, body {
+            overflow-y: auto !important;
+            height: 100% !important;
+        }
         
-<style>
-    /* باڈی اور مین ایریا کی اسکرولنگ سیٹ کرنا */
-    html, body {
-        overflow-y: auto !important;
-        height: 100% !important;
-    }
-    
-    /* مین کنٹینٹ کو مینیو بار سے اوپر رکھنا تاکہ لسٹ چھپے نہیں */
-    main, .print-section {
-        padding-bottom: 120px !important;
-    }
+        main, .print-section {
+            padding-bottom: 120px !important;
+        }
 
-    /* 🎯 اوپر والے ہیڈر کو نیچے کرنے کے لیے تاکہ ٹاپ بار نہ کٹے */
-    header {
-        padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-    }
+        header {
+            padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+        }
 
-    /* 🎯 نچلے مینیو بار (NAV) کا فائنل لے آؤٹ جو ناموں کو اوپر لائے گا */
-    nav {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        background: #ffffff !important;
-        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
-        z-index: 99999 !important;
-        display: grid !important;
-        grid-template-cols: repeat(4, 1fr) !important;
-        padding-top: 10px !important;
-        /* یہ جادوئی لائن مینیو کو موبائل کے ہوم بٹنوں سے محفوظ اوپر رکھے گی اور نام نظر آئیں گے */
-        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; 
-        border-top: 1px solid #e5e7eb !important;
-        transform: none !important;
-    }
+        nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            background: #ffffff !important;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
+            z-index: 99999 !important;
+            display: grid !important;
+            grid-template-cols: repeat(5, 1fr) !important;
+            padding-top: 10px !important;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; 
+            border-top: 1px solid #e5e7eb !important;
+            transform: none !important;
+        }
 
-    /* مینیو کے اندر بٹنوں کا سائز اور فانٹ ایڈجسٹ کرنا تاکہ کوئی چیز نہ کٹے */
-    nav button {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 2px !important;
-        background: transparent !important;
-        border: none !important;
-        width: 100% !important;
-    }
+        nav button {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 2px !important;
+            background: transparent !important;
+            border: none !important;
+            width: 100% !important;
+        }
 
-    nav button i {
-        font-size: 18px !important; /* آئیکن کا سائز */
-    }
+        nav button i {
+            font-size: 18px !important; 
+        }
 
-    nav button span {
-        font-size: 11px !important; /* ٹیکسٹ کا سائز */
-        white-space: nowrap !important; /* ٹیکسٹ کو نیچے والی لائن میں ٹوٹنے سے روکے گا */
-    }
-</style>
-
-
-      
-      
-      
-    
-</body> </html> 
+        nav button span {
+            font-size: 11px !important; 
+            white-space: nowrap !important; 
+        }
+    </style>
+</body> 
+</html>
 
