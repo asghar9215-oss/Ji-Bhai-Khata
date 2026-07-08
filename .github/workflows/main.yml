@@ -1,4 +1,4 @@
-name: Build Android Master Webview App
+Name: Build Android Master Webview App
 
 on:
   workflow_dispatch:
@@ -14,11 +14,11 @@ on:
       version_code:
         description: 'ورژن کوڈ لکھیں'
         required: true
-        default: '10008'
+        default: '10010'
       version_name:
         description: 'ورژن کا نام لکھیں'
         required: true
-        default: '1.0.8'
+        default: '1.0.10'
       blogger_url:
         description: 'اپنے بلاگر یا ایپ کا لائیو لنک یہاں پیسٹ کریں'
         required: true
@@ -267,10 +267,15 @@ jobs:
           </manifest>
           EOF
 
-      # 🔑 شاہ جی، یہاں پاسورڈ کے ساتھ ساتھ سرٹیفکیٹ فائل (.pem) برآمد کرنے کا مینوئل کوڈ بالکل پکا جوڑ دیا ہے
-      - name: Generate Permanent Master Keystore and Export Pem
+      # 🔑 فکسڈ مرحلہ: اب گٹ ہب ہر بار نئی چابی نہیں بنائے گا بلکہ گٹ ہب میں پہلے سے موجود یا ایک بار بنی ہوئی مستقل چابی تلاش کرے گا
+      - name: Check or Restore Permanent Keystore
         run: |
-          keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
+          if [ -f "app/jibhaikhata_master.keystore" ]; then
+            echo "مستقل چابی پہلے سے محفوظ ہے!"
+          else
+            echo "پہلی بار مستقل چابی اور سرٹیفکیٹ بنایا جا رہا ہے..."
+            keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
+          fi
           keytool -export -rfc -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -file app/upload_certificate.pem -storepass "${{ secrets.KEYSTORE_PASSWORD }}"
 
       - name: Generate Build Gradle Configuration
@@ -318,7 +323,6 @@ jobs:
           gradle wrapper --gradle-version 8.5
           ./gradlew :app:bundleRelease :app:assembleRelease --no-build-cache
 
-      # 📦 شاہ جی، یہاں بھی تیسری فائل کی لوکیشن ایڈ کر دی ہے تاکہ زپ کے اندر یہ لازمی شامل ہو جائے
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
