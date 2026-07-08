@@ -267,7 +267,6 @@ jobs:
           </manifest>
           EOF
 
-      # 🔑 مستقل اور پکی چابی بنانے کا بالکل فکسڈ طریقہ (بغیر کسی ایرر کے)
       - name: Generate Permanent Keystore and Cert
         run: |
           keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
@@ -326,4 +325,3 @@ jobs:
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
             app/upload_certificate.pem
-
