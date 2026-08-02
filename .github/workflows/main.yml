@@ -14,11 +14,11 @@ on:
       version_code:
         description: 'ورژن کوڈ لکھیں'
         required: true
-        default: '10012'
+        default: '10011'
       version_name:
         description: 'ورژن کا نام لکھیں'
         required: true
-        default: '1.0.12'
+        default: '1.0.11'
       blogger_url:
         description: 'اپنے بلاگر یا ایپ کا لائیو لنک یہاں پیسٹ کریں'
         required: true
@@ -46,10 +46,26 @@ jobs:
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
-      - name: Download Custom App Image Icon
+      - name: Generate High Quality XML App Icon
+        run: |
+          cat << 'EOF' > app/src/main/res/drawable/ic_launcher_foreground.xml
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path
+                  android:fillColor="#FFFFFF"
+                  android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
+          </vector>
+       
+         EOF
+
+
+     - name: Download Custom App Image Icon
         run: |
           curl -s -L "https://i.ibb.co/jPgwbSDq/74074.png" -o app/src/main/res/drawable/ic_launcher.png
-
+      
       - name: Generate Android Native Java Source Code
         run: |
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
@@ -75,13 +91,9 @@ jobs:
           import android.print.PrintAttributes;
           import android.print.PrintDocumentAdapter;
           import android.print.PrintManager;
-          import android.speech.tts.TextToSpeech;
-          import java.util.Locale;
-          import android.webkit.JavascriptInterface;
 
           public class MainActivity extends Activity {
               private WebView myWebView;
-              private TextToSpeech tts;
               private ValueCallback<Uri[]> uploadMessage;
               private final static int FILECHOOSER_RESULTCODE = 1;
 
@@ -97,25 +109,6 @@ jobs:
                   }
 
                   myWebView = new WebView(this);
-
-                  tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-                      @Override
-                      public void onInit(int status) {
-                          if (status != TextToSpeech.ERROR) {
-                              tts.setLanguage(new Locale("ur", "PK"));
-                          }
-                      }
-                  });
-
-                  myWebView.addJavascriptInterface(new Object() {
-                      @JavascriptInterface
-                      public void speak(String text) {
-                          if (tts != null) {
-                              tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-                          }
-                      }
-                  }, "AndroidTTS");
-
                   WebSettings webSettings = myWebView.getSettings();
                   webSettings.setJavaScriptEnabled(true);
                   webSettings.setDomStorageEnabled(true);
@@ -209,7 +202,7 @@ jobs:
                   });
 
                   myWebView.addJavascriptInterface(new Object() {
-                      @JavascriptInterface
+                      @android.webkit.JavascriptInterface
                       public void printPage() {
                           runOnUiThread(new Runnable() {
                               @Override
@@ -252,15 +245,6 @@ jobs:
                       super.onBackPressed();
                   }
               }
-
-              @Override
-              protected void onDestroy() {
-                  if (tts != null) {
-                      tts.stop();
-                      tts.shutdown();
-                  }
-                  super.onDestroy();
-              }
           }
           EOF
 
@@ -274,7 +258,7 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:icon="@drawable/ic_launcher"
+                  android:icon="@drawable/ic_launcher_foreground"
                   android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
                   <activity android:name=".MainActivity"
