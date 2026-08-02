@@ -46,19 +46,12 @@ jobs:
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
-      - name: Generate High Quality XML App Icon
+      
+      - name: Download Custom App Image Icon
         run: |
-          cat << 'EOF' > app/src/main/res/drawable/ic_launcher_foreground.xml
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="108dp"
-              android:height="108dp"
-              android:viewportWidth="108"
-              android:viewportHeight="108">
-              <path
-                  android:fillColor="#FFFFFF"
-                  android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
-          </vector>
-          EOF
+          curl -s -L "https://i.ibb.co/jPgwbSDq/74074.png" -o app/src/main/res/drawable/ic_launcher.png
+
+          
 
       - name: Generate Android Native Java Source Code
         run: |
@@ -252,7 +245,12 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:icon="@drawable/ic_launcher_foreground"
+
+                  
+                                    android:icon="@drawable/ic_launcher"
+
+
+                  
                   android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
                   <activity android:name=".MainActivity"
