@@ -58,14 +58,8 @@ jobs:
                   android:fillColor="#FFFFFF"
                   android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
           </vector>
-       
-         EOF
+          EOF
 
-
-     - name: Download Custom App Image Icon
-        run: |
-          curl -s -L "https://i.ibb.co/jPgwbSDq/74074.png" -o app/src/main/res/drawable/ic_launcher.png
-      
       - name: Generate Android Native Java Source Code
         run: |
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
