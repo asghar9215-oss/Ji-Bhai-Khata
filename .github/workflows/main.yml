@@ -43,11 +43,10 @@ jobs:
         run: |
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/mipmap-hdpi
           PKG_PATH=$(echo "${{ github.event.inputs.package_name }}" | tr '.' '/')
           mkdir -p "app/src/main/java/$PKG_PATH"
 
-      - name: Download App Icon Image
+      - name: Download Custom App Image Icon
         run: |
           curl -s -L "https://i.ibb.co/jPgwbSDq/74074.png" -o app/src/main/res/drawable/ic_launcher.png
 
@@ -67,13 +66,15 @@ jobs:
           import android.webkit.GeolocationPermissions;
           import android.webkit.WebChromeClient;
           import android.webkit.ValueCallback;
-          import android.webkit.PermissionRequest;
           import android.webkit.URLUtil;
           import android.os.Build;
           import android.os.Environment;
           import android.app.DownloadManager;
           import android.content.Context;
           import android.widget.Toast;
+          import android.print.PrintAttributes;
+          import android.print.PrintDocumentAdapter;
+          import android.print.PrintManager;
           import android.speech.tts.TextToSpeech;
           import java.util.Locale;
           import android.webkit.JavascriptInterface;
@@ -87,16 +88,11 @@ jobs:
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-
+                  
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                       requestPermissions(new String[]{
                               "android.permission.ACCESS_FINE_LOCATION",
-                              "android.permission.ACCESS_COARSE_LOCATION",
-                              "android.permission.RECORD_AUDIO",
-                              "android.permission.MODIFY_AUDIO_SETTINGS",
-                              "android.permission.SEND_SMS",
-                              "android.permission.RECEIVE_SMS",
-                              "android.permission.READ_SMS"
+                              "android.permission.ACCESS_COARSE_LOCATION"
                       }, 1);
                   }
 
@@ -128,12 +124,7 @@ jobs:
                   webSettings.setDatabaseEnabled(true);
                   webSettings.setAllowContentAccess(true);
                   webSettings.setMediaPlaybackRequiresUserGesture(false);
-                  webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
-
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                      webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-                  }
-
+                  
                   webSettings.setUseWideViewPort(false);
                   webSettings.setLoadWithOverviewMode(false);
 
@@ -141,21 +132,21 @@ jobs:
                       @Override
                       public boolean shouldOverrideUrlLoading(WebView view, String url) {
                           if (url == null) return false;
-
+                          
                           if (url.startsWith("tel:")) {
                               Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
                               startActivity(intent);
                               return true;
                           }
-
-                          if (url.startsWith("whatsapp:") || url.contains("api.whatsapp.com")) {
+                          
+                          if (url.startsWith("whatsapp:") || url.contains("api.whatsapp.com") || url.contains("wa.me")) {
                               try {
                                   Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                                   intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                   startActivity(intent);
                                   return true;
                               } catch (Exception e) {
-                                  Toast.makeText(MainActivity.this, "واٹس ایپ انسٹال نہیں ہے", Toast.LENGTH_SHORT).show();
+                                  Toast.makeText(MainActivity.this, "موبائل میں واٹس ایپ انسٹال نہیں ہے!", Toast.LENGTH_SHORT).show();
                                   return true;
                               }
                           }
@@ -166,11 +157,10 @@ jobs:
                                   startActivity(intent);
                                   return true;
                               } catch (Exception e) {
-                                  Toast.makeText(MainActivity.this, "میپس ایپ نہیں ملی", Toast.LENGTH_SHORT).show();
+                                  Toast.makeText(MainActivity.this, "گوگل میپس ایپ نہیں ملی!", Toast.LENGTH_SHORT).show();
                                   return true;
                               }
                           }
-
                           return false;
                       }
                   });
@@ -182,15 +172,9 @@ jobs:
                       }
 
                       @Override
-                      public void onPermissionRequest(final PermissionRequest request) {
-                          request.grant(request.getResources());
-                      }
-
-                      @Override
                       public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
                           if (uploadMessage != null) {
                               uploadMessage.onReceiveValue(null);
-                              uploadMessage = null;
                           }
                           uploadMessage = filePathCallback;
                           Intent intent = fileChooserParams.createIntent();
@@ -204,8 +188,51 @@ jobs:
                       }
                   });
 
+                  myWebView.setDownloadListener((downloadUrl, userAgent, contentDisposition, mimeType, contentLength) -> {
+                      try {
+                          DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
+                          request.setMimeType(mimeType);
+                          request.setDescription("فائل ڈاؤن لوڈ ہو رہی ہے...");
+                          request.setTitle(URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
+                          request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                          request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
+                          
+                          DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                          if (dm != null) {
+                              dm.enqueue(request);
+                              Toast.makeText(MainActivity.this, "ڈاؤن لوڈنگ شروع ہو چکی ہے...", Toast.LENGTH_LONG).show();
+                          }
+                      } catch (Exception e) {
+                          Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+                          startActivity(intent);
+                      }
+                  });
+
+                  myWebView.addJavascriptInterface(new Object() {
+                      @JavascriptInterface
+                      public void printPage() {
+                          runOnUiThread(new Runnable() {
+                              @Override
+                              public void run() {
+                                  createWebPrintJob(myWebView);
+                              }
+                          });
+                      }
+                  }, "AndroidPrint");
+
                   myWebView.loadUrl("${{ github.event.inputs.blogger_url }}");
                   setContentView(myWebView);
+              }
+
+              private void createWebPrintJob(WebView webView) {
+                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                      PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
+                      String jobName = "Ji_Bhai_Khata_Document";
+                      PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+                      if (printManager != null) {
+                          printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+                      }
+                  }
               }
 
               @Override
@@ -237,34 +264,22 @@ jobs:
           }
           EOF
 
-      - name: Generate Android Manifest
+      - name: Generate Android Manifest File
         run: |
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="${{ github.event.inputs.package_name }}">
-
+          cat << EOF > app/src/main/AndroidManifest.xml
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
               <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
               <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-              <uses-permission android:name="android.permission.RECORD_AUDIO" />
-              <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-              <uses-permission android:name="android.permission.SEND_SMS" />
-              <uses-permission android:name="android.permission.RECEIVE_SMS" />
-              <uses-permission android:name="android.permission.READ_SMS" />
-
               <application
                   android:allowBackup="true"
-                  android:icon="@drawable/ic_launcher"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:supportsRtl="true"
-                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:icon="@drawable/ic_launcher"
+                  android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
                   android:usesCleartextTraffic="true">
-                  <activity
-                      android:name=".MainActivity"
-                      android:configChanges="orientation|screenSize"
-                      android:exported="true">
+                  <activity android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
@@ -274,68 +289,61 @@ jobs:
           </manifest>
           EOF
 
-      - name: Setup Gradle Project Files
+      - name: Generate Permanent Keystore and Cert
+        run: |
+          keytool -genkey -v -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" -dname "CN=StyleLink, OU=App, O=jibhaikhata, L=Lahore, S=Punjab, C=PK"
+          keytool -export -rfc -keystore app/jibhaikhata_master.keystore -alias "${{ secrets.KEY_ALIAS }}" -file app/upload_certificate.pem -storepass "${{ secrets.KEYSTORE_PASSWORD }}"
+
+      - name: Generate Build Gradle Configuration
         run: |
           cat << 'EOF' > settings.gradle
-          rootProject.name = 'WebviewApp'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name = "stylelink-jibhaikhata"
           include ':app'
           EOF
 
           cat << 'EOF' > build.gradle
-          buildscript {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-              dependencies {
-                  classpath 'com.android.tools.build:gradle:8.1.1'
-              }
-          }
-
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
+          buildscript { repositories { google(); mavenCentral() }; dependencies { classpath 'com.android.tools.build:gradle:8.2.2' } }
           EOF
 
           cat << 'EOF' > app/build.gradle
-          plugins {
-              id 'com.android.application'
-          }
-
+          plugins { id 'com.android.application' }
           android {
               namespace "${{ github.event.inputs.package_name }}"
               compileSdk 36
-
-              defaultConfig {
+              signingConfigs { 
+                  release { 
+                      storeFile file("jibhaikhata_master.keystore")
+                      storePassword "${{ secrets.KEYSTORE_PASSWORD }}"
+                      keyAlias "${{ secrets.KEY_ALIAS }}"
+                      keyPassword "${{ secrets.KEY_PASSWORD }}"
+                  } 
+              }
+              
+              defaultConfig { 
                   applicationId "${{ github.event.inputs.package_name }}"
-                  minSdk 21
+                  minSdk 24
                   targetSdk 36
                   versionCode ${{ github.event.inputs.version_code }}
                   versionName "${{ github.event.inputs.version_name }}"
               }
-
-              buildTypes {
-                  release {
-                      minifyEnabled false
-                  }
-              }
-              
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
+              buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
           }
           EOF
+          echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
 
-      - name: Build Android APK
+      - name: Build Official Signed AAB and APK Files
         run: |
-          gradle assembleRelease
+          export GRADLE_USER_HOME=$HOME/.gradle_clean
+          gradle wrapper --gradle-version 8.5
+          ./gradlew :app:bundleRelease :app:assembleRelease --no-build-cache
 
-      - name: Upload APK Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: jibhaikhata_Final_Release_Files
+          path: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/release/app-release.apk
+            app/upload_certificate.pem
